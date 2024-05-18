@@ -232,15 +232,14 @@ private:
     int watson_exp;
     Position criminal_pos;
 
-    Position* parsePositionArray(const std::string& pos_arr);
-    Position parsePosition(const std::string& positionStr);
-
+    
 public:
     Configuration(const string & filepath);
     ~Configuration();
     string str() const;
-    
-};
+    void parsePosition(const string& input, Position& position);
+    void parsePositions(const string& input, Position*& positions, int& num_positions);
+};  
 
 // Robot, BaseItem, BaseBag,...
 class Robot : public MovingObject{

@@ -396,7 +396,7 @@ Configuration::Configuration(const string &filepath){
             getline(target, key, '=');
             getline(target, value);
 
-            cout << key << " " << value << endl;
+            cout << key << " " <<"."<<  value << "." << endl;
             if (key == "MAP_NUM_ROWS") {
                 map_num_rows = stoi(value);
             }else if(key == "MAP_NUM_COLS"){
@@ -413,17 +413,15 @@ Configuration::Configuration(const string &filepath){
             num_walls = count;
             arr_walls = new Position[num_walls];
             }else if (key == "ARRAY_WALLS"){
-                arr_walls = parsePositionArray(value);
-                num_walls = (value.length()/6);
+                parsePositions(value, arr_walls, num_walls);
             }else if (key == "NUM_FAKE_WALLS"){
-                num_fake_walls = stoi(value);
                 arr_fake_walls = new Position[num_fake_walls];
             }else if (key == "ARRAY_FAKE_WALLS"){
-                arr_fake_walls = parsePositionArray(value);
+                parsePositions(value, arr_fake_walls, num_fake_walls);
             }else if (key == "SHERLOCK_MOVING_RULE"){
                 sherlock_moving_rule = value;
             }else if (key == "SHERLOCK_pos"){
-                sherlock_pos = parsePosition(value);
+                parsePosition(value, sherlock_pos);
             }else if (key == "SHERLOCK_hp"){
                 sherlock_hp = stoi(value);
             }else if (key == "SHERLOCK_exp"){
@@ -431,16 +429,17 @@ Configuration::Configuration(const string &filepath){
             }else if (key == "WATSON_MOVING_RULE"){
                 watson_moving_rule = value;
             }else if (key == "WATSON_pos"){
-                watson_pos = parsePosition(value);
+                parsePosition(value, watson_pos);
             }else if (key == "WATSON_hp"){
                 watson_hp = stoi(value);
             }else if (key == "WATSON_exp"){
                 watson_exp = stoi(value);
             }else if (key == "CRIMINAL_pos"){
-                criminal_pos = parsePosition(value);
+                parsePosition(value, criminal_pos);
             }else if (key == "NUM_STEPS"){
                 num_steps = stoi(value);
             }
+            cout << endl;
         }
         file.close();
     }
@@ -482,26 +481,43 @@ string Configuration::str() const {
     ss << "]";
     return ss.str();
 }
-Position* Configuration::parsePositionArray(const string& positionArrayStr){
-    int num_positions = 1;
-    for(int i = 0; i < positionArrayStr.length(); i++){
-        if(positionArrayStr[i] == ';'){
-            num_positions++;
-        }
+void Configuration::parsePositions(const string& input, Position*& positions, int& num_positions){
+    int count = 1;
+    for (int i = 0; i < input.length(); i++){
+        if (input[i] == ';') count++;
     }
-    Position* positions = new Position[num_positions];
-    for (int i = 0; i < num_positions; i++) {
-        positions[i] = parsePosition(positionArrayStr.substr(i * 6, 6));
+    num_positions = count;
+    positions = new Position[num_positions];
+    int start = input.find("[") + 1;
+    int end = input.find("]");
+    string substr = input.substr(start, end - start);
+    int pos = 0;
+    for (int i=0; i<num_positions - 1; i++){
+        pos = substr.find(";");
+        string pair = substr.substr(0, pos);
+        int comma_pos = pair.find(",");
+        int row = stoi(pair.substr(1, comma_pos - 1));
+        int col = stoi(pair.substr(comma_pos + 1, pair.size() - comma_pos - 2));
+        positions[i] = Position(row,col);
+        substr.erase(0,pos+1);
     }
-    return positions;
-}
-Position Configuration::parsePosition(const string& positionStr){
-    int commaPos = positionStr.find(",");
-    int row = stoi(positionStr.substr(1, commaPos - 1));
-    int col = stoi(positionStr.substr(commaPos + 1, positionStr.size() - commaPos - 2));
-    return Position(row, col);
+    //the last pair
+    int comma_pos = substr.find(",");
+    int row = stoi(substr.substr(1, comma_pos - 1));
+    int col = stoi(substr.substr(comma_pos + 1, substr.size() - comma_pos - 2));    
+    positions[num_positions - 1] = Position(row,col);
+
+    delete[] positions;
+    return;
 }
 
+void Configuration::parsePosition(const string& input, Position& position){
+    int start = input.find("(") + 1;
+    int comma_pos = input.find(",");
+    position.setRow(stoi(input.substr(start, comma_pos - start)));
+    int end = input.find(")");
+    position.setCol(stoi(input.substr(comma_pos + 1, end - comma_pos - 1)));
+}
 //Task 3.10 - Robot
 Robot::Robot(int index, const Position & pos, Map * map, RobotType robot_type, Criminal* criminal) : MovingObject(index, pos, map,"Robot"){
     this->criminal = criminal;
