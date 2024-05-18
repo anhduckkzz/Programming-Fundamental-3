@@ -394,7 +394,6 @@ Configuration::Configuration(const string &filepath){
             getline(target, key, '=');
             getline(target, value);
 
-            cout << key << " " <<"."<<  value << "." << endl;
             if (key == "MAP_NUM_ROWS") {
                 map_num_rows = stoi(value);
             }else if(key == "MAP_NUM_COLS"){
@@ -437,7 +436,6 @@ Configuration::Configuration(const string &filepath){
             }else if (key == "NUM_STEPS"){
                 num_steps = stoi(value);
             }
-            cout << endl;
         }
         file.close();
     }
@@ -534,25 +532,91 @@ int Robot::getDistance()const{
     return 0;
 }
 
+
 Robot* Robot::create(int index, Map* map, Criminal* criminal, Sherlock* sherlock, Watson* watson){
     int disCS = distance(criminal->getCurrentPosition(),sherlock->getCurrentPosition());
     int disCW = distance(criminal->getCurrentPosition(),watson->getCurrentPosition());
-    if(criminal->getCount() == 2 && criminal->getCount() > 0){
-        return new RobotC(index, criminal->getCurrentPosition(), map, criminal);
-    }else if(disCS > disCW){
-        RobotS* robots =  new RobotS(index, criminal->getCurrentPosition(), map, criminal, sherlock);
+    Position robot_pos = criminal->getCurrentPosition();
+
+    int p = robot_pos.getCol() * robot_pos.getRow();
+    int s = two_into_one(p);
+
+    if(s == 1 || s == 0){
+        setItem(MAGIC_BOOK, criminal);
+    }else if(s == 2 || s == 3){
+        setItem(ENERGY_DRINK,criminal);
+    }else if(s == 4 || s == 5){
+        setItem(EXCEMPTION_CARD,criminal);
+    }else if(s == 6 || s == 7){
+        setItem(FIRST_AID,criminal);
+    }else if(s == 8 || s == 9){
+        setItem(PASSING_CARD,criminal);
+    }
+        
+    if(criminal->getCount() % 3 == 0){
+        if (criminal->getCount() == 3)
+        return new RobotC(index, robot_pos, map, criminal);
+    else if(disCS > disCW){    
+        RobotS* robots =  new RobotS(index, robot_pos, map, criminal, sherlock);
+
         return robots;
     }
     else if(disCS < disCW){
-        RobotW* robotw =  new RobotW(index, criminal->getCurrentPosition(), map, criminal, watson);
+        RobotW* robotw =  new RobotW(index, robot_pos, map, criminal, watson);
         return robotw;
     }
     else if(disCS == disCW){
-        RobotSW* robotsw = new RobotSW(index, criminal->getCurrentPosition(), map, criminal, sherlock, watson);
+        RobotSW* robotsw = new RobotSW(index, robot_pos, map, criminal, sherlock, watson);
         return robotsw;
     }
-    return 0;
+}
+return nullptr;
+}
+
+void Robot::setItem(ItemType itemtype, Criminal* criminal)
+{
+    switch (itemtype)
+    {
+    case MAGIC_BOOK:
+        item = new MagicBook();
+        break;
+    case ENERGY_DRINK:
+        item = new EnergyDrink();
+        break;
+    case FIRST_AID:
+        item = new FirstAid();
+        break;
+    case EXCEMPTION_CARD:
+        item = new ExcemptionCard();
+        break;
+    case PASSING_CARD:
+        int t = (criminal->getRow()*11 + criminal->getCol()) % 4;
+        if(t == 0){
+            item = new PassingCard("RobotS");
+        }else if(t == 1){
+            item = new PassingCard("RobotC");
+        }else if(t == 2){
+            item = new PassingCard("RobotSW");
+        }else if(t == 3){
+            item = new PassingCard("all");
+        }
+        break;
+    }
 };
+
+int Robot::two_into_one(int p){
+    int result;
+    string temp = to_string(p);
+    if(temp.length() == 1){
+        result = p;
+    }else{
+        result = (p % 10) + (p / 10);
+        if(result >= 10){
+            result = two_into_one(result);
+        }
+    }
+    return result;
+}
 //RobotC
 
 RobotC::RobotC ( int index , const Position & pos , Map * map , Criminal * criminal ): Robot(index,pos,map,C,criminal){
@@ -586,6 +650,10 @@ int RobotC::getDistance() const{
 string RobotC::str() const{
     return "Robot[pos="+pos.str()+"type="+to_string(C)+"dist="+""+"]";
 };
+
+RobotType RobotC::getType() const{
+    return C;
+}
 //RobotS
 
 RobotS::RobotS ( int index , const Position & pos , Map * map , Criminal * criminal , Sherlock * Sherlock ): Robot(index,pos,map,S,criminal){
@@ -628,6 +696,9 @@ string RobotS::str() const{
     return "Robot[pos="+pos.str()+"type="+to_string(S)+"dist="+to_string(getDistance())+"]";
 }
 
+RobotType RobotS::getType() const{
+    return S;
+}
 //RobotW
 Position RobotW::getNextPosition() {
     Position next_pos = pos;
@@ -664,6 +735,9 @@ string RobotW::str() const{
     return "Robot[pos="+pos.str()+"type="+to_string(SW)+"dist="+to_string(getDistance())+"]";
 };
 
+RobotType RobotW::getType() const{
+    return W;
+}
 //RobotSW
 
 RobotSW::RobotSW ( int index , const Position & pos , Map * map , Criminal * criminal , Sherlock * sherlock , Watson* watson ) : Robot(index,pos,map,SW,criminal){
@@ -709,22 +783,13 @@ string RobotSW::str() const{
     return "Robot[pos="+pos.str()+"type="+to_string(SW)+"dist="+to_string(getDistance())+"]";
 }
 
-bool BaseItem::canUse(Character * obj, Robot * robot){
-    return 0;
+RobotType RobotSW::getType() const{
+    return SW;
 }
 
-int two_into_one(int p){
-    int result;
-    string temp = to_string(p);
-    if(temp.length() == 1){
-        result = p;
-    }else{
-        result = (p % 10) + (p / 10);
-        if(result >= 10){
-            result = two_into_one(result);
-        }
-    }
-    return result;
+//Task 3.11 - BaseItem
+bool BaseItem::canUse(Character * obj, Robot * robot){
+    return 0;
 }
 
 void Character::setExp(int exp){
@@ -746,6 +811,10 @@ bool MagicBook::canUse(Character * obj, Robot * robot){
         return true;
     }
     return false;
+}
+
+string MagicBook::str() const{
+    return "MAGIC_BOOK";
 }
 
 void MagicBook::use(Character * obj, Robot * robot){
@@ -771,6 +840,10 @@ void EnergyDrink::use(Character * obj, Robot * robot){
     }
 }
 
+string EnergyDrink::str() const{
+    return "ENERGGY_DRINK";
+}
+
 //FirstAid
 ItemType FirstAid::getitemtype() const{
     return FIRST_AID;
@@ -786,6 +859,10 @@ void FirstAid::use(Character * obj, Robot * robot){
     if(canUse(obj,robot)){
         obj->setHp(obj->getHp() * 150/100);
     }
+}
+
+string FirstAid::str() const{
+    return "FIRST_AID";
 }
 
 //ExcemptionCard
@@ -806,12 +883,78 @@ void ExcemptionCard::use(Character * obj, Robot * robot){
     }
 }
 
+string ExcemptionCard::str() const{
+    return "EXCEMPTION_CARD";
+}
+
 //PassingCard
+PassingCard::PassingCard(int a,int b){
+    int t = (a * 11 + b) % 4;
+    if(t == 0){
+        challenge == "RobotS";
+    }
+    else if(t==1){
+        challenge == "RobotC";
+    }
+    else if(t==2){
+        challenge == "RobotSW";
+    }
+    else if(t==3){
+        challenge == "all";
+    }
+}
+PassingCard::PassingCard(string challenge){
+    this->challenge = challenge;
+}
 ItemType PassingCard::getitemtype() const{
     return PASSING_CARD;
 }
 
+bool PassingCard::canUse(Character * obj, Robot * robot){
+    if(obj->getExp() % 2 == 0 && obj->getname() == "Watson"){
+        return true;
+    }
+    return false;
+}
+void PassingCard::use(Character * obj, Robot * robot){
+    if(canUse(obj, robot)){
+        if(challenge == "RobotS"){
+            if(robot->getType() == S){
+                obj->setHp(obj->getHp());
+                obj->setExp(obj->getExp());
+            }
+        }
+        else if(challenge == "RobotC"){
+            if(robot->getType() == C){
+                obj->setExp(obj->getExp());
+                obj->setHp(obj->getHp());
+            }
+        }
+        else if(challenge == "RobotSW"){
+            if(robot->getType() == SW){
+                obj->setExp(obj->getExp());
+                obj->setHp(obj->getHp());
+            }
+        }
+        else if(challenge == "all"){
+            obj->setExp(obj->getExp());
+            obj->setHp(obj->getHp());
+        }
+        else 
+            obj->setHp(obj->getHp() - 50);
+    }
+}
 
+string PassingCard::str() const{
+    return "PASSING_CARD";
+}
+
+
+//Task 3.12 - BaseBag
+BaseBag::Node::Node(BaseItem* item, Node* next = nullptr){
+    this->item = item;
+    this->next = next;
+}
 
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
