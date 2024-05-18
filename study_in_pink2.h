@@ -313,41 +313,42 @@ class BaseItem{
 public:
 virtual bool canUse ( Character * obj , Robot * robot ) = 0;
 virtual void use ( Character * obj , Robot * robot ) = 0;
+virtual ItemType getitemtype() const = 0;
 };
 
 class MagicBook : public BaseItem {
     public:
-    MagicBook(ItemType itemtype);
     bool canUse ( Character * obj , Robot * robot );
     void use ( Character * obj , Robot * robot );
+    ItemType getitemtype() const;
 };
 
 class EnergyDrink:public BaseItem {
     public:
-    EnergyDrink(ItemType itemtype);
     bool canUse ( Character * obj , Robot * robot );
     void use ( Character * obj , Robot * robot );
+    ItemType getitemtype() const;
 };
 
 class FirstAid : public BaseItem{
     public:
-    FirstAid(ItemType itemtype);
     bool canUse ( Character * obj , Robot * robot );
     void use ( Character * obj , Robot * robot );
+    ItemType getitemtype() const;
 };
 
 class ExcemptionCard: public BaseItem{
     public:
-    ExcemptionCard(ItemType itemtype);
     bool canUse ( Character * obj , Robot * robot );
     void use ( Character * obj , Robot * robot );
+    ItemType getitemtype() const;
 };
 
 class PassingCard: public BaseItem{
     public:
-    PassingCard(ItemType itemtype);
     bool canUse ( Character * obj , Robot * robot );
     void use ( Character * obj , Robot * robot );
+    ItemType getitemtype() const;
 };
 class StudyPinkProgram {
 private:

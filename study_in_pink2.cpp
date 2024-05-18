@@ -739,8 +739,8 @@ void Character::setHp(int hp){
 
 // Class for each item
 // MagicBook
-MagicBook::MagicBook(ItemType itemtype){
-    itemtype = MAGIC_BOOK;
+ItemType MagicBook::getitemtype() const{ 
+    return MAGIC_BOOK;
 }
 
 bool MagicBook::canUse(Character * obj, Robot * robot){
@@ -757,8 +757,8 @@ void MagicBook::use(Character * obj, Robot * robot){
 }
 
 //EnergyDrink
-EnergyDrink::EnergyDrink(ItemType itemtype){
-    itemtype = ENERGY_DRINK;
+ItemType EnergyDrink::getitemtype() const{
+    return ENERGY_DRINK;
 }
 bool EnergyDrink::canUse(Character * obj, Robot * robot){
     if(obj->getHp() < 100 && robot == nullptr){
@@ -774,8 +774,8 @@ void EnergyDrink::use(Character * obj, Robot * robot){
 }
 
 //FirstAid
-FirstAid::FirstAid(ItemType itemtype){
-    itemtype = FIRST_AID;
+ItemType FirstAid::getitemtype() const{
+    return FIRST_AID;
 }
 bool FirstAid::canUse(Character * obj, Robot * robot){
     if((obj->getHp() <= 100 || obj->getExp() <= 350)&& robot == nullptr){
@@ -791,8 +791,8 @@ void FirstAid::use(Character * obj, Robot * robot){
 }
 
 //ExcemptionCard
-ExcemptionCard::ExcemptionCard(ItemType itemtype){
-    itemtype = EXCEMPTION_CARD;
+ItemType ExcemptionCard::getitemtype() const{
+    return EXCEMPTION_CARD;
 }
 bool ExcemptionCard::canUse(Character * obj, Robot * robot){
     if(obj->getExp() % 2 == 1 && obj->getName() == "Sherlock"){
@@ -803,10 +803,18 @@ bool ExcemptionCard::canUse(Character * obj, Robot * robot){
 
 void ExcemptionCard::use(Character * obj, Robot * robot){
     if(canUse(obj,robot)){
-       
+        obj->setExp(obj->getExp());
+        obj->setHp(obj->getHp());
     }
 }
 
+//PassingCard
+ItemType PassingCard::getitemtype() const{
+    return PASSING_CARD;
+}
+bool PassingCard::canUse(Character * obj, Robot * robot){
+
+}
 
 
 ////////////////////////////////////////////////
