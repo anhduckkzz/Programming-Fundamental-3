@@ -420,21 +420,21 @@ Configuration::Configuration(const string &filepath){
                 parsePositions(value, arr_fake_walls, num_fake_walls);
             }else if (key == "SHERLOCK_MOVING_RULE"){
                 sherlock_moving_rule = value;
-            }else if (key == "SHERLOCK_pos"){
+            }else if (key == "SHERLOCK_INIT_POS"){
                 parsePosition(value, sherlock_pos);
-            }else if (key == "SHERLOCK_hp"){
+            }else if (key == "SHERLOCK_INIT_HP"){
                 sherlock_hp = stoi(value);
-            }else if (key == "SHERLOCK_exp"){
+            }else if (key == "SHERLOCK_INIT_EXP"){
                 sherlock_exp = stoi(value);
             }else if (key == "WATSON_MOVING_RULE"){
                 watson_moving_rule = value;
-            }else if (key == "WATSON_pos"){
+            }else if (key == "WATSON_INIT_POS"){
                 parsePosition(value, watson_pos);
-            }else if (key == "WATSON_hp"){
+            }else if (key == "WATSON_INIT_HP"){
                 watson_hp = stoi(value);
-            }else if (key == "WATSON_exp"){
+            }else if (key == "WATSON_INIT_EXP"){
                 watson_exp = stoi(value);
-            }else if (key == "CRIMINAL_pos"){
+            }else if (key == "CRIMINAL_INIT_POS"){
                 parsePosition(value, criminal_pos);
             }else if (key == "NUM_STEPS"){
                 num_steps = stoi(value);
@@ -469,14 +469,14 @@ string Configuration::str() const {
     }
     ss << "]" << endl;  
     ss << "SHERLOCK_MOVING_RULE=" << sherlock_moving_rule << endl;
-    ss << "SHERLOCK_pos=" << sherlock_pos.str() << endl;
-    ss << "SHERLOCK_hp=" << sherlock_hp << endl;
-    ss << "SHERLOCK_exp=" << sherlock_exp << endl;
+    ss << "SHERLOCK_INIT_POS=" << sherlock_pos.str() << endl;
+    ss << "SHERLOCK_INIT_HP=" << sherlock_hp << endl;
+    ss << "SHERLOCK_INIT_EXP=" << sherlock_exp << endl;
     ss << "WATSON_MOVING_RULE=" << watson_moving_rule << endl;
-    ss << "WATSON_pos=" << watson_pos.str() << endl;
-    ss << "WATSON_hp=" << watson_hp << endl;
-    ss << "WATSON_exp=" << watson_exp << endl;
-    ss << "CRIMINAL_pos=" << criminal_pos.str() << endl;
+    ss << "WATSON_INIT_POS=" << watson_pos.str() << endl;
+    ss << "WATSON_INIT_HP=" << watson_hp << endl;
+    ss << "WATSON_INIT_EXP=" << watson_exp << endl;
+    ss << "CRIMINAL_INIT_POS=" << criminal_pos.str() << endl;
     ss << "NUM_STEPS=" << num_steps << endl;
     ss << "]";
     return ss.str();
