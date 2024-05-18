@@ -648,7 +648,7 @@ int RobotC::getDistance() const{
     return 0;
 };
 string RobotC::str() const{
-    return "Robot[pos="+pos.str()+"type="+to_string(C)+"dist="+""+"]";
+    return "Robot[pos="+pos.str()+"type="+to_string(C)+",dist="+""+"]";
 };
 
 RobotType RobotC::getType() const{
