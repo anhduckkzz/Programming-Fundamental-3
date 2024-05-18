@@ -136,7 +136,7 @@ public:
     virtual Position getCurrentPosition() const;
     virtual void move() = 0;
     virtual string str() const = 0;
-    string getname() const;
+    virtual string getname() const;
 };
 
 class Character : public MovingObject {
@@ -151,6 +151,9 @@ public:
     virtual ~Character();
     virtual Position getNextPosition();
     Position getCurrentPosition() const;
+    virtual string str() const;
+    virtual void move();
+    
     int getRow();
     int getCol();
     virtual void setExp(int exp);
@@ -158,9 +161,7 @@ public:
     virtual int getExp();
     virtual int getHp();
     virtual void setName(string name);
-    virtual string getName();
-    virtual string str() const;
-    virtual void move();
+    
 };
 
 class Sherlock : public Character {

@@ -224,9 +224,7 @@ void Character::setName(string name){
     this->name = name;
 }
 
-string Character::getName(){
-    return name;
-}
+
 //Task 3.5 - Sherlock
 
 Sherlock::Sherlock(int index, const string &moving_rule,const  Position &pos, Map *map, int hp, int exp) : Character(index, pos, map, "Sherlock"){
@@ -795,7 +793,7 @@ ItemType ExcemptionCard::getitemtype() const{
     return EXCEMPTION_CARD;
 }
 bool ExcemptionCard::canUse(Character * obj, Robot * robot){
-    if(obj->getExp() % 2 == 1 && obj->getName() == "Sherlock"){
+    if(obj->getExp() % 2 == 1 && obj->getname() == "Sherlock"){
         return true;
     }
     return false;
@@ -812,9 +810,7 @@ void ExcemptionCard::use(Character * obj, Robot * robot){
 ItemType PassingCard::getitemtype() const{
     return PASSING_CARD;
 }
-bool PassingCard::canUse(Character * obj, Robot * robot){
 
-}
 
 
 ////////////////////////////////////////////////
