@@ -554,11 +554,11 @@ Robot* Robot::create(int index, Map* map, Criminal* criminal, Sherlock* sherlock
     }
         
     if(criminal->getCount() % 3 == 0){
-        if (criminal->getCount() == 3)
-        return new RobotC(index, robot_pos, map, criminal);
-    else if(disCS > disCW){    
+        if (criminal->getCount() == 3){
+        RobotC* robotc =  new RobotC(index, robot_pos, map, criminal);
+        return robotc;
+    }else if(disCS > disCW){    
         RobotS* robots =  new RobotS(index, robot_pos, map, criminal, sherlock);
-
         return robots;
     }
     else if(disCS < disCW){
@@ -819,7 +819,7 @@ string MagicBook::str() const{
 
 void MagicBook::use(Character * obj, Robot * robot){
     if(canUse(obj,robot)){
-        obj->setExp(obj->getExp()*125/100);
+        obj->setExp(ceil(obj->getExp()*125/100));
     }
 }
 

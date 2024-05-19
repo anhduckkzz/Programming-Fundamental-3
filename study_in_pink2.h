@@ -321,30 +321,30 @@ class MagicBook : public BaseItem {
     public:
         bool canUse ( Character * obj , Robot * robot );
         void use ( Character * obj , Robot * robot );
-        ItemType getitemtype() const;
-        virtual string str() const;
+        ItemType getitemtype() const override;
+        virtual string str() const override;
 };
 
 class EnergyDrink:public BaseItem {
     public:
-        bool canUse ( Character * obj , Robot * robot );
-        void use ( Character * obj , Robot * robot );
-        ItemType getitemtype() const;
-        virtual string str() const;
+        bool canUse ( Character * obj , Robot * robot ) override;
+        void use ( Character * obj , Robot * robot ) override;
+        ItemType getitemtype() const override;
+        virtual string str() const override;
 };
 
 class FirstAid : public BaseItem{
     public:
-        bool canUse ( Character * obj , Robot * robot );
-        void use ( Character * obj , Robot * robot );
-        ItemType getitemtype() const;
-        virtual string str() const;
+        bool canUse ( Character * obj , Robot * robot )override;
+        void use ( Character * obj , Robot * robot ) override;
+        ItemType getitemtype() const override;
+        virtual string str() const override;
 };
 
 class ExcemptionCard: public BaseItem{
     public:
-        bool canUse ( Character * obj , Robot * robot );
-        void use ( Character * obj , Robot * robot );
+        bool canUse ( Character * obj , Robot * robot ) override;
+        void use ( Character * obj , Robot * robot ) override;
         ItemType getitemtype() const;
         virtual string str() const;
 };
@@ -355,10 +355,10 @@ class PassingCard: public BaseItem{
     public:
         PassingCard(int a,int b);
         PassingCard(string challenge);
-        bool canUse ( Character * obj , Robot * robot );
-        void use ( Character * obj , Robot * robot );
-        ItemType getitemtype() const;
-        virtual string str() const;
+        bool canUse ( Character * obj , Robot * robot ) override;
+        void use ( Character * obj , Robot * robot ) override;
+        ItemType getitemtype() const override;
+        virtual string str() const override;
 };
 
 //BaseBag

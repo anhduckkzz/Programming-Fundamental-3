@@ -96,7 +96,12 @@ public:
         cout << "RobotC makes a move" << endl;
         robotC->move();
         cout << "New position of robotC: " << robotC->str() << endl;
+        // từ dưới trở đi là nháp
+        criminal->move();
+        criminal->move();
+        criminal->move();
 
+        cout << "Current position of Criminal: " << criminal->str() << endl;
         delete sherlock;
         delete watson;
         delete criminal;
