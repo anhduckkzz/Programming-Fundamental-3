@@ -231,6 +231,9 @@ void Character::setName(string name){
     this->name = name;
 }
 
+void Character::setCurrentPosition(Position pos){
+    this->pos = pos;
+}
 
 //Task 3.5 - Sherlock
 
@@ -290,6 +293,37 @@ bool Sherlock::meet(RobotW* robotw){
     }
 }
 
+bool Sherlock::meet(RobotSW* robotsw){
+    if(pos.isEqual(robotsw->getCurrentPosition())){
+        if(this->exp > 300 || this->exp > 335){
+            this->meet(robotsw);
+            delete robotsw;
+            return true;
+        }else{
+            this->exp *= 0.85;
+            this->hp *= 0.85;
+            return false;
+        }
+    }
+}
+
+bool Sherlock::meet(RobotC* robotc){
+    BaseItem *item = sherlockbag->get();
+    if (item != NULL)
+    {
+        item->use(this, robotc);
+    }
+    delete item;
+    if (pos.isEqual(robotc->getCurrentPosition()))
+    {
+        if (this->getExp() > 500)
+        {
+            this->setCurrentPosition(criminal->getCurrentPosition());
+        }
+        sherlockbag->insert(robotc->get());
+        delete robotc;
+    }
+}
 //Task 3.6 - Watson
 
 Watson::Watson(int index, const string &moving_rule, const Position &pos, Map *map, int hp, int exp) : Character(index, pos, map, "Watson"){
@@ -695,6 +729,10 @@ void RobotC::setName(string name){
 }
 string RobotC::getName(){
     return name;
+}
+
+RobotType setType(RobotType robot_type){
+    return robot_type;
 }
 //RobotS
 
@@ -1116,6 +1154,15 @@ bool BaseBag::isFull() const {
 
 SherlockBag::SherlockBag(Sherlock* sherlock) : BaseBag(13), sherlock(sherlock) {};
 
+
+BaseItem* SherlockBag::get(){
+    Node* current = head;
+    while (current != nullptr) {
+        if(canUse()){
+            
+        }
+}
+}
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
 ///////////////////////////////////////////////

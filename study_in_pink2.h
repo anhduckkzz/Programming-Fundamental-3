@@ -152,6 +152,7 @@ class Character : public MovingObject {
         int exp;
         int num;
         string moving_rule;   
+        Criminal* criminal;
         
     public:
         Character(int index, const Position &pos, Map * map, const string & name);
@@ -169,12 +170,13 @@ class Character : public MovingObject {
         virtual int getHp();
         void setName(string name) = 0;
         string getName() = 0;
+        virtual void setCurrentPosition(Position pos);
 };
 
 class Sherlock : public Character {
     friend class TestStudyInPink;
     private:
-    
+    SherlockBag* sherlockbag;
     public:
         Sherlock(int index, const string & moving_rule,const Position & pos, Map * map, int hp, int exp);
         ~Sherlock();
@@ -307,6 +309,8 @@ class RobotC : public Robot {
         RobotType setType(RobotType robot_type);
         string getName();
         void setName(string name);
+        BaseItem* get();
+        
 
 };
 
