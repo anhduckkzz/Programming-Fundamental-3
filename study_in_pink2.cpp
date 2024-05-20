@@ -266,6 +266,30 @@ string Sherlock::getName(){
     return name;
 }
 Sherlock::~Sherlock() {}
+
+bool Sherlock::meet(RobotS* robots){
+    if(pos.isEqual(robots->getCurrentPosition())){
+        if(this->exp > 400){
+            this->meet(robots);
+            delete robots;
+            return true;
+        }else{
+            this->exp *= 0.9;
+            return false;
+        }
+    }
+}
+
+bool Sherlock::meet(RobotW* robotw){
+    if(pos.isEqual(robotw->getCurrentPosition())){
+            this->meet(robotw);
+            delete robotw;
+            return true;
+    }else{
+        return false;
+    }
+}
+
 //Task 3.6 - Watson
 
 Watson::Watson(int index, const string &moving_rule, const Position &pos, Map *map, int hp, int exp) : Character(index, pos, map, "Watson"){
@@ -1016,7 +1040,7 @@ bool BaseBag::insert(BaseItem* item){
      if(item == NULL){
         return false;
     }
-    Node* temp = new Node(item,head);
+    Node* temp = new Node(item,head);   
     if(temp == NULL)
     {
         return false;
@@ -1090,8 +1114,8 @@ bool BaseBag::isFull() const {
     return size >= capacity;
 }
 
-SherlockBag::SherlockBag(Sherlock* character) : BaseBag(13) {
-}
+SherlockBag::SherlockBag(Sherlock* sherlock) : BaseBag(13), sherlock(sherlock) {};
+
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
 ///////////////////////////////////////////////

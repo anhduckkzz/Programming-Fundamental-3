@@ -440,7 +440,7 @@ class SherlockBag : public BaseBag{
     private:
         Sherlock* sherlock;
     public:
-        SherlockBag(Sherlock* character);
+        SherlockBag(Sherlock* sherlock);
         BaseItem* get();
 };
 
@@ -449,7 +449,7 @@ class WatsonBag : public BaseBag{
     private:
         Watson* watson;
     public:
-        WatsonBag(Watson* character);
+        WatsonBag(Watson* watson);
         BaseItem* get();
 };
 class StudyPinkProgram {
