@@ -138,7 +138,7 @@ int Position::getCol() const{
 string Position::str() const{
     return "(" + to_string(r) + "," + to_string(c) + ")";
 };
-bool Position::isEqual(const Position &pos) const{
+bool Position::isEqual(Position pos) const{
     if(r == pos.getRow() && c == pos.getCol()) return true;
     else return false;
 };
@@ -280,9 +280,6 @@ void Watson::move(){
 string Watson::str() const {
     return "Watson[index=" + to_string(index) + ",pos=" + pos.str() + ",moving_rule=" + moving_rule + "]";
 }
-int Watson::getExp() const{
-   return exp; 
-};
 
 //Task 3.7 - Criminal
 
@@ -515,9 +512,8 @@ void Configuration::parsePosition(const string& input, Position& position){
     position.setCol(stoi(input.substr(comma_pos + 1, end - comma_pos - 1)));
 }
 //Task 3.10 - Robot
-Robot::Robot(int index, const Position & pos, Map * map, RobotType robot_type, Criminal* criminal) : MovingObject(index, pos, map,"Robot"){
+Robot::Robot(int index, const Position & pos, Map * map, Criminal* criminal) : MovingObject(index, pos, map,"Robot"){
     this->criminal = criminal;
-    this->robot_type = robot_type;
 }
 
 Position getNextPosition(){
@@ -619,7 +615,7 @@ int Robot::two_into_one(int p){
 }
 //RobotC
 
-RobotC::RobotC ( int index , const Position & pos , Map * map , Criminal * criminal ): Robot(index,pos,map,C,criminal){
+RobotC::RobotC ( int index , const Position & pos , Map * map , Criminal * criminal ): Robot(index,pos,map,criminal){
     this->criminal = criminal;
 }
 Position RobotC::getNextPosition(){
@@ -656,7 +652,7 @@ RobotType RobotC::getType() const{
 }
 //RobotS
 
-RobotS::RobotS ( int index , const Position & pos , Map * map , Criminal * criminal , Sherlock * Sherlock ): Robot(index,pos,map,S,criminal){
+RobotS::RobotS ( int index , const Position & pos , Map * map , Criminal * criminal , Sherlock * Sherlock ): Robot(index,pos,map,criminal){
     this->sherlock = sherlock;
     this->criminal = criminal;
 }
@@ -723,7 +719,7 @@ Position RobotW::getNextPosition() {
     }
     return next_pos;
 };
-RobotW::RobotW ( int index , const Position & pos , Map * map , Criminal * criminal , Watson * watson ): Robot(index,pos,map,W,criminal){
+RobotW::RobotW ( int index , const Position & pos , Map * map , Criminal * criminal , Watson * watson ): Robot(index,pos,map,criminal){
     this->watson = watson;
     this->criminal = criminal;
 }
@@ -740,7 +736,7 @@ RobotType RobotW::getType() const{
 }
 //RobotSW
 
-RobotSW::RobotSW ( int index , const Position & pos , Map * map , Criminal * criminal , Sherlock * sherlock , Watson* watson ) : Robot(index,pos,map,SW,criminal){
+RobotSW::RobotSW ( int index , const Position & pos , Map * map , Criminal * criminal , Sherlock * sherlock , Watson* watson ) : Robot(index,pos,map,criminal){
     this->sherlock = sherlock;
     this->criminal = criminal;
     this->watson = watson;
@@ -836,7 +832,7 @@ bool EnergyDrink::canUse(Character * obj, Robot * robot){
 
 void EnergyDrink::use(Character * obj, Robot * robot){
     if(canUse(obj,robot)){
-        obj->setHp(obj->getHp() * 120/100);
+        obj->setHp(ceil(obj->getHp() * 120/100));
     }
 }
 

@@ -70,7 +70,6 @@ public:
     static void satc_02() {
         g_satc_02();
     }
-
     static void satc_03() {
         // Sample test for RobotC
         cout << "----- Sample Testcase 03 -----" << endl;
