@@ -98,7 +98,7 @@ bool Map::isValid(const Position &pos, MovingObject *mv_obj) const {
         return false; // Wall
     }
     if (element->getType() == FAKE_WALL) {
-        if(mv_obj->getname() == "Watson"){
+        if(mv_obj->getName() == "Watson"){
             if(Watson * watson = dynamic_cast<Watson*>(mv_obj)){
                 if(watson->getExp() <= dynamic_cast<FakeWall*>(element)->getreq_exp()){
                     return false;
@@ -123,6 +123,14 @@ Position::Position(const string & str_pos){
         this->c = stoi(str_pos.substr(str_pos.find(',') + 1,str_pos.find(')')  - str_pos.find(',')));
     }
 }
+
+bool Position::isEqual(int r, int c) const{
+    if(this->r == r && this->c == c){
+        return true;
+    }
+    return false;
+}
+
 void Position::setRow(int r){
     this->r = r;
 }
@@ -154,9 +162,6 @@ MovingObject::MovingObject(int index,const Position pos, Map * map,const string 
 MovingObject::~MovingObject(){};
 Position MovingObject::getCurrentPosition() const{
     return pos; 
-}
-string MovingObject::getname() const{
-    return name;
 }
 
 //Task Character
@@ -201,6 +206,8 @@ Position Character::getNextPosition() {
 Position Character::getCurrentPosition() const{
     return pos;
 }
+
+
 int Character::getCol(){
     return pos.getCol();
 }
@@ -252,6 +259,13 @@ string Sherlock::str() const {
     return "Sherlock[index=" + to_string(index) + ",pos=" + pos.str() + ",moving_rule=" + moving_rule +"]";
 }
 
+void Sherlock::setName(string name){
+    this->name = "Sherlock";
+}
+string Sherlock::getName(){
+    return name;
+}
+Sherlock::~Sherlock() {}
 //Task 3.6 - Watson
 
 Watson::Watson(int index, const string &moving_rule, const Position &pos, Map *map, int hp, int exp) : Character(index, pos, map, "Watson"){
@@ -650,6 +664,14 @@ string RobotC::str() const{
 RobotType RobotC::getType() const{
     return C;
 }
+
+void RobotC::setName(string name){
+    this->name = "RobotC";
+
+}
+string RobotC::getName(){
+    return name;
+}
 //RobotS
 
 RobotS::RobotS ( int index , const Position & pos , Map * map , Criminal * criminal , Sherlock * Sherlock ): Robot(index,pos,map,criminal){
@@ -695,6 +717,14 @@ string RobotS::str() const{
 RobotType RobotS::getType() const{
     return S;
 }
+
+void RobotS::setName(string name){
+    this->name = "RobotS";
+}   
+
+string RobotS::getName(){
+    return name;
+}
 //RobotW
 Position RobotW::getNextPosition() {
     Position next_pos = pos;
@@ -734,6 +764,15 @@ string RobotW::str() const{
 RobotType RobotW::getType() const{
     return W;
 }
+
+void RobotW::setName(string name){
+    this->name = "RobotW";
+}
+
+string RobotW::getName(){
+    return name;
+}
+
 //RobotSW
 
 RobotSW::RobotSW ( int index , const Position & pos , Map * map , Criminal * criminal , Sherlock * sherlock , Watson* watson ) : Robot(index,pos,map,criminal){
@@ -781,6 +820,14 @@ string RobotSW::str() const{
 
 RobotType RobotSW::getType() const{
     return SW;
+}
+
+void RobotSW::setName(string name){
+    this->name = "RobotSW";
+}
+
+string RobotSW::getName(){
+    return name;
 }
 
 //Task 3.11 - BaseItem
@@ -866,7 +913,7 @@ ItemType ExcemptionCard::getitemtype() const{
     return EXCEMPTION_CARD;
 }
 bool ExcemptionCard::canUse(Character * obj, Robot * robot){
-    if(obj->getExp() % 2 == 1 && obj->getname() == "Sherlock"){
+    if(obj->getExp() % 2 == 1 && obj->getName() == "Sherlock"){
         return true;
     }
     return false;
@@ -907,7 +954,7 @@ ItemType PassingCard::getitemtype() const{
 }
 
 bool PassingCard::canUse(Character * obj, Robot * robot){
-    if(obj->getExp() % 2 == 0 && obj->getname() == "Watson"){
+    if(obj->getExp() % 2 == 0 && obj->getName() == "Watson"){
         return true;
     }
     return false;
@@ -947,11 +994,104 @@ string PassingCard::str() const{
 
 
 //Task 3.12 - BaseBag
-BaseBag::Node::Node(BaseItem* item, Node* next = nullptr){
-    this->item = item;
-    this->next = next;
+BaseBag::Node::Node(BaseItem* item, Node* next): item(item), next(next){};
+
+BaseBag::BaseBag(int capacity){
+    this->capacity = capacity;
+    size = 0;
+    head = nullptr;
 }
 
+BaseBag::~BaseBag() {
+    Node* current = head;
+    while (current != nullptr) {
+        Node* nextNode = current->next;
+        delete current->item; // Assuming ownership of items
+        delete current;
+        current = nextNode;
+    }
+}
+
+bool BaseBag::insert(BaseItem* item){
+     if(item == NULL){
+        return false;
+    }
+    Node* temp = new Node(item,head);
+    if(temp == NULL)
+    {
+        return false;
+    }else{
+        if(size < capacity){
+            temp->item = item;
+            temp->next = head;
+            head = temp;
+            size++;
+        }
+        else
+        { 
+            return false;
+        }
+    }
+    return true;
+}
+
+BaseItem* BaseBag::get(ItemType itemtype) {
+    Node* current = head;
+    Node* prev = nullptr;
+    while (current != nullptr) {
+        if (current->item->getitemtype() == itemtype) {
+            if (prev != nullptr) {
+                prev->next = current->next;
+            } else {
+                head = current->next;
+            }
+            BaseItem* item = current->item;
+            delete current;
+            size--;
+            return item;
+        }
+        prev = current;
+        current = current->next;
+    }
+    return nullptr;
+}
+
+BaseItem* BaseBag(ItemType itemtype){
+        return nullptr;
+}
+
+string BaseBag::str() const {
+    stringstream ss;
+    ss << "Bag[count=" << size << ";";
+    Node* current = head;
+    while (current != nullptr) {
+        ss << current->item->getitemtype();
+        current = current->next;
+        if (current != nullptr) {
+            ss << ",";
+        }
+    }
+    ss << "]";
+    return ss.str();
+}
+
+bool BaseBag::checkItem(ItemType itemtype) {
+    Node* current = head;
+    while (current != nullptr) {
+        if (current->item->getitemtype() == itemtype) {
+            return true;
+        }
+        current = current->next;
+    }
+    return false;
+}
+
+bool BaseBag::isFull() const {
+    return size >= capacity;
+}
+
+SherlockBag::SherlockBag(Sherlock* character) : BaseBag(13) {
+}
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
 ///////////////////////////////////////////////

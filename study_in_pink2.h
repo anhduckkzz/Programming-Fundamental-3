@@ -122,6 +122,7 @@ class Position {
 
         string str() const;
 
+        bool isEqual(int r, int c) const;
         bool isEqual(Position pos) const;
 };
 
@@ -140,7 +141,8 @@ friend class TestStudyInPink;
         virtual Position getCurrentPosition() const;
         virtual void move() = 0;
         virtual string str() const = 0;
-        virtual string getname() const;
+        virtual void setName(string name) = 0;
+        virtual string getName() = 0;
 };
 
 class Character : public MovingObject {
@@ -150,7 +152,7 @@ class Character : public MovingObject {
         int exp;
         int num;
         string moving_rule;   
-        BaseBag* basebag;
+        
     public:
         Character(int index, const Position &pos, Map * map, const string & name);
         virtual ~Character();
@@ -165,20 +167,21 @@ class Character : public MovingObject {
         virtual void setHp(int hp);
         virtual int getExp();
         virtual int getHp();
-        virtual void setName(string name) = 0;
-        virtual string getName() = 0;
+        void setName(string name) = 0;
+        string getName() = 0;
 };
 
 class Sherlock : public Character {
-    private:
     friend class TestStudyInPink;
+    private:
+    
     public:
         Sherlock(int index, const string & moving_rule,const Position & pos, Map * map, int hp, int exp);
         ~Sherlock();
         void move() override;
         string str() const override;
-        string getName();
-        void setName(string name);
+        string getName() override;
+        void setName(string name) override;
 
         bool meet(RobotC* robotc);
         bool meet(RobotS* robots);
@@ -193,9 +196,9 @@ class Sherlock : public Character {
     public:
         Watson(int index, const string & moving_rule, const Position & pos, Map * map, int hp, int exp);
         ~Watson();
-        void move() override;
-        string str() const override;
-        string getName() = 0;
+        void move();
+        string str() const;
+        string getName();
         void setName(string name);
 
         bool meet(RobotC* robotc);
@@ -276,7 +279,7 @@ class Robot : public MovingObject{
 
     public:
         Robot(int index, const Position & pos, Map * map, Criminal* criminal);
-        static Robot* create(int index, Map* map, Criminal* criminal, Sherlock* sherlock, Watson* watson);
+        Robot* create(int index, Map* map, Criminal* criminal, Sherlock* sherlock, Watson* watson);
         virtual Position getNextPosition() = 0;
         virtual void move();
         virtual string str() const = 0;
@@ -284,7 +287,9 @@ class Robot : public MovingObject{
         virtual RobotType getType() const = 0;
         void setItem(ItemType itemtype, Criminal* criminal);
         int two_into_one(int p);
-};
+        void setName(string name) = 0;
+        string getName() = 0;
+    };
 
 class RobotC : public Robot {
     friend class TestStudyInPink;
@@ -300,6 +305,8 @@ class RobotC : public Robot {
         string str() const;
         RobotType getType() const;
         RobotType setType(RobotType robot_type);
+        string getName();
+        void setName(string name);
 
 };
 
@@ -315,6 +322,8 @@ class RobotS : public Robot {
         void move();
         string str() const;
         RobotType getType() const;
+        string getName();
+        void setName(string name);
 };
 
 class RobotW : public Robot {
@@ -328,6 +337,8 @@ class RobotW : public Robot {
     Position getNextPosition();
     string str() const;
     RobotType getType() const;
+    string getName();
+    void setName(string name);
 };
 
 class RobotSW : public Robot {
@@ -342,6 +353,8 @@ class RobotSW : public Robot {
         Position getNextPosition();
         string str() const;
         RobotType getType() const;
+        string getName();
+        void setName(string name);
 };
 
 class BaseItem{
@@ -398,27 +411,28 @@ class PassingCard: public BaseItem{
 
 //BaseBag
 class BaseBag{
-    private:
+    protected:
         class Node{
-            BaseItem* item;
-            Node* next;
-        public:
-            Node(BaseItem* item,Node* next);
+            public:
+                BaseItem* item;
+                Node* next;
+            public:
+                Node(BaseItem* item,Node* next);
         };
     protected:
-        int size;
-        int capacity;
         Node* head;
     public:
         virtual bool insert(BaseItem* item);
-        virtual BaseItem* get();
+        virtual BaseItem* get() = 0;
         virtual BaseItem* get(ItemType itemtype);
         virtual string str() const;
-
         BaseBag(int capacity);
         virtual ~BaseBag();
         bool checkItem(ItemType itemtype);
         bool isFull() const;
+    protected:
+        int size;
+        int capacity;
 };
 
 class SherlockBag : public BaseBag{
