@@ -45,6 +45,12 @@ class WatsonBag;
 
 class TestStudyInPink;
 
+enum CharacterType{
+    SHERLOCK,
+    WATSON,
+    CRIMINAL,
+};
+
 enum ItemType { 
     MAGIC_BOOK,
     ENERGY_DRINK, 
@@ -58,6 +64,7 @@ enum ElementType {
     WALL, 
     FAKE_WALL 
 };
+
 
 enum RobotType { C, S, W, SW };
 
@@ -133,16 +140,21 @@ friend class TestStudyInPink;
         Position pos;
         Map* map;
         string name;
+        CharacterType character_type;
 
     public:
         MovingObject(int index, const Position pos, Map * map, const string & name="");
         virtual ~MovingObject();
         virtual Position getNextPosition() = 0;
         virtual Position getCurrentPosition() const;
+        virtual void setCurrentPosition(Position pos);
+
         virtual void move() = 0;
         virtual string str() const = 0;
-        virtual void setName(string name) = 0;
-        virtual string getName() = 0;
+
+        virtual CharacterType getCharacterType() const;
+        virtual void setCharacterType(CharacterType character_type);
+        virtual RobotType getRobotType() const = 0;
 };
 
 class Character : public MovingObject {
@@ -165,6 +177,8 @@ class Character : public MovingObject {
         Position getCurrentPosition() const;
         virtual string str() const = 0;
         virtual void move() = 0;
+        virtual void setCharacterType(CharacterType character_type);
+        CharacterType getCharacterType() const = 0;
         
         int getRow();
         int getCol();
@@ -172,22 +186,20 @@ class Character : public MovingObject {
         virtual void setHp(int hp);
         virtual int getExp();
         virtual int getHp();
-        void setName(string name) = 0;
-        string getName() = 0;
-        virtual void setCurrentPosition(Position pos);
 };
 
 class Sherlock : public Character {
     friend class TestStudyInPink;
     private:
+    BaseBag* bag;
     public:
         Sherlock(int index, const string & moving_rule,const Position & pos, Map * map, int hp, int exp);
         ~Sherlock();
         void move() override;
         string str() const override;
-        string getName() override;
-        void setName(string name) override;
-
+        void setCharacterType(CharacterType character_type) override;
+        CharacterType getCharacterType() const override;
+        RobotType getRobotType() const{};
         bool meet(RobotC* robotc);
         bool meet(RobotS* robots);
         bool meet(RobotW* robotw);
@@ -205,6 +217,8 @@ class Sherlock : public Character {
         string str() const;
         string getName();
         void setName(string name);
+        CharacterType getCharacterType() const;
+        RobotType getRobotType() const{};
 
         bool meet(RobotC* robotc);
         bool meet(RobotS* robots);
@@ -225,8 +239,8 @@ class Criminal : public Character {
         string str() const override;
         void setCount(int count);
         int getCount() const;
-        string getName();
-        void setName(string name);
+        CharacterType getCharacterType() const;
+        RobotType getRobotType() const{};
 };
 
 class ArrayMovingObject {   
@@ -290,11 +304,12 @@ class Robot : public MovingObject{
         virtual void move();
         virtual string str() const = 0;
         virtual int getDistance() const = 0;
-        virtual RobotType getType() const = 0;
+        virtual RobotType getRobotType() const = 0;
+        virtual void setRobotType(RobotType robot_type);
         void setItem(ItemType itemtype, Criminal* criminal);
+
         int two_into_one(int p);
-        void setName(string name) = 0;
-        string getName() = 0;
+        virtual BaseItem* getItem();
     };
 
 class RobotC : public Robot {
@@ -309,10 +324,7 @@ class RobotC : public Robot {
         int getDistance(Watson* watson);
         int getDistance() const;
         string str() const;
-        RobotType getType() const;
-        RobotType setType(RobotType robot_type);
-        string getName();
-        void setName(string name);
+        RobotType getRobotType() const override;
         BaseItem* get();
         
 
@@ -329,9 +341,8 @@ class RobotS : public Robot {
         int getDistance() const;
         void move();
         string str() const;
-        RobotType getType() const;
-        string getName();
-        void setName(string name);
+        RobotType getRobotType() const;
+        
 };
 
 class RobotW : public Robot {
@@ -344,9 +355,8 @@ class RobotW : public Robot {
     int getDistance() const;
     Position getNextPosition();
     string str() const;
-    RobotType getType() const;
-    string getName();
-    void setName(string name);
+    RobotType getRobotType() const;
+   
 };
 
 class RobotSW : public Robot {
@@ -360,49 +370,46 @@ class RobotSW : public Robot {
         int getDistance() const;
         Position getNextPosition();
         string str() const;
-        RobotType getType() const;
-        string getName();
-        void setName(string name);
+        RobotType getRobotType() const;
 };
 
 class BaseItem{
+    private:
+    ItemType item;
     public:
         virtual bool canUse ( Character * obj , Robot * robot ) = 0;
         virtual void use ( Character * obj , Robot * robot ) = 0;
-        virtual ItemType getitemtype() const = 0;
-        virtual string str() const = 0;
+        virtual ItemType getItemType() const = 0;
+        virtual void setItemType(ItemType item);
 };
 
 class MagicBook : public BaseItem {
     public:
         bool canUse ( Character * obj , Robot * robot );
         void use ( Character * obj , Robot * robot );
-        ItemType getitemtype() const override;
-        virtual string str() const override;
+        
+        ItemType getItemType() const;
 };
 
 class EnergyDrink:public BaseItem {
     public:
         bool canUse ( Character * obj , Robot * robot ) override;
         void use ( Character * obj , Robot * robot ) override;
-        ItemType getitemtype() const override;
-        virtual string str() const override;
+        ItemType getItemType() const;
 };
 
 class FirstAid : public BaseItem{
     public:
         bool canUse ( Character * obj , Robot * robot )override;
         void use ( Character * obj , Robot * robot ) override;
-        ItemType getitemtype() const override;
-        virtual string str() const override;
+        ItemType getItemType() const;
 };
 
 class ExcemptionCard: public BaseItem{
     public:
         bool canUse ( Character * obj , Robot * robot ) override;
         void use ( Character * obj , Robot * robot ) override;
-        ItemType getitemtype() const;
-        virtual string str() const;
+        ItemType getItemType() const;
 };
 
 class PassingCard: public BaseItem{
@@ -413,8 +420,10 @@ class PassingCard: public BaseItem{
         PassingCard(string challenge);
         bool canUse ( Character * obj , Robot * robot ) override;
         void use ( Character * obj , Robot * robot ) override;
-        ItemType getitemtype() const override;
-        virtual string str() const override;
+        ItemType getItemType() const;
+        string getChallenge() const {
+            return challenge;
+        };
 };
 
 //BaseBag
