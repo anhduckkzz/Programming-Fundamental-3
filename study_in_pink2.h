@@ -49,6 +49,7 @@ enum CharacterType{
     SHERLOCK,
     WATSON,
     CRIMINAL,
+    ROBOT
 };
 
 enum ItemType { 
@@ -154,7 +155,6 @@ friend class TestStudyInPink;
 
         virtual CharacterType getCharacterType() const;
         virtual void setCharacterType(CharacterType character_type);
-        virtual RobotType getRobotType() const = 0;
 };
 
 class Character : public MovingObject {
@@ -165,11 +165,6 @@ class Character : public MovingObject {
         int num;
         Position next_pos;
         string moving_rule;   
-        Criminal* criminal;
-        Sherlock* sherlock;
-        Watson* watson;
-        SherlockBag* sherlockbag;
-        WatsonBag* watsonbag;
     public:
         Character(int index, const Position &pos, Map * map, const string & name);
         virtual ~Character();
@@ -191,7 +186,7 @@ class Character : public MovingObject {
 class Sherlock : public Character {
     friend class TestStudyInPink;
     private:
-    BaseBag* bag;
+    SherlockBag* bag;
     public:
         Sherlock(int index, const string & moving_rule,const Position & pos, Map * map, int hp, int exp);
         ~Sherlock();
@@ -199,7 +194,6 @@ class Sherlock : public Character {
         string str() const override;
         void setCharacterType(CharacterType character_type) override;
         CharacterType getCharacterType() const override;
-        RobotType getRobotType() const{};
         bool meet(RobotC* robotc);
         bool meet(RobotS* robots);
         bool meet(RobotW* robotw);
@@ -210,6 +204,8 @@ class Sherlock : public Character {
 
     class Watson : public Character {
         friend class TestStudyInPink;
+        private:
+        WatsonBag* bag;
     public:
         Watson(int index, const string & moving_rule, const Position & pos, Map * map, int hp, int exp);
         ~Watson();
@@ -240,7 +236,6 @@ class Criminal : public Character {
         void setCount(int count);
         int getCount() const;
         CharacterType getCharacterType() const;
-        RobotType getRobotType() const{};
 };
 
 class ArrayMovingObject {   
@@ -434,10 +429,11 @@ class BaseBag{
                 BaseItem* item;
                 Node* next;
             public:
-                Node(BaseItem* item,Node* next);
+                Node(BaseItem* item,Node* next = nullptr) : item(item){};
         };
     protected:
         Node* head;
+        Character* obj;
     public:
         virtual bool insert(BaseItem* item);
         virtual BaseItem* get() = 0;

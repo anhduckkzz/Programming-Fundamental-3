@@ -86,6 +86,7 @@ Map::~Map(){
     }
     delete[] map;
 }
+
 bool Map::isValid(const Position &pos, MovingObject *mv_obj) const {
     int r = pos.getRow();
     int c = pos.getCol();
@@ -113,6 +114,7 @@ bool Map::isValid(const Position &pos, MovingObject *mv_obj) const {
 //Task 3.3 - Position
 
 const Position Position::npos(-1, -1);
+
 Position::Position(int r, int c){
     this->r = r;
     this->c = c;
@@ -146,6 +148,7 @@ int Position::getCol() const{
 string Position::str() const{
     return "(" + to_string(r) + "," + to_string(c) + ")";
 };
+
 bool Position::isEqual(Position pos) const{
     if(r == pos.getRow() && c == pos.getCol()) return true;
     else return false;
@@ -160,6 +163,7 @@ MovingObject::MovingObject(int index,const Position pos, Map * map,const string 
     this->name = "";
 } 
 MovingObject::~MovingObject(){};
+
 Position MovingObject::getCurrentPosition() const{
     return pos; 
 }
@@ -169,10 +173,10 @@ void MovingObject::setCurrentPosition(Position pos){
 }
 //Task Character
 
-Character::Character(int index, const Position &pos, Map *map, const string &name) : MovingObject(index, pos, map, name) {
-}
-Character::~Character() {
-}
+Character::Character(int index, const Position &pos, Map *map, const string &name) : MovingObject(index, pos, map, name) {};
+
+Character::~Character() {};
+
 Position Character::getNextPosition() {
     num++;
     Position next_pos = pos;
@@ -274,107 +278,125 @@ string Sherlock::str() const {
 Sherlock::~Sherlock() {}
 
 bool Sherlock::meet(RobotS* robots){
-    BaseItem* item = sherlockbag->get(EXCEMPTION_CARD);
-    if(item != NULL){
-        if(item->canUse(this, robots)){
-            item->use(this, robots);
-            return true;
-        }else{
+    //check if sherlock meet robotS
+    if(sherlock == nullptr && robots == nullptr){
+        return false;
+    }
+
+    //get out of from bag the excemption card
+    BaseItem* card = sherlockbag->get(EXCEMPTION_CARD);   
+    //if there is an excemption card in the bag 
+    if(card != nullptr){
+        //if item can be used
+        if(card->canUse(this, robots)){
+            //use the item
+            card->use(this, robots);
+            //combat win
             if(sherlock->getExp() > 400){
-                BaseItem* item = robots->getItem();
-                sherlockbag->insert(item);
-                return true;
+                sherlockbag->insert(robots->getItem());
+                delete robots;
+            //combat lose,exp remains the same
             }else{
+                sherlock->setExp(sherlock->getExp());
+            }
+
+        //if the card cannot be used,combat
+        }else{
+            //sherlock win if exp > 400
+            if(sherlock->getExp() > 400){
+                sherlockbag->insert(robots->getItem());
+                delete robots;
+            }else{
+                //sherlock defeat and lose 10% exp,no receive
                 sherlock->setExp(sherlock->getExp() * 0.9);
-                return true;
+                sherlock->setExp(sherlock->getExp());
             }
         }
+    //if there is no excemption card in the bag
     }else{
+        //win if exp > 400
         if(sherlock->getExp() > 400){
             BaseItem* item = robots->getItem();
             sherlockbag->insert(item);
-            return true;
+            delete robots;
+        //defeat and lose 10% exp,no receive
         }else{
             sherlock->setExp(sherlock->getExp() * 0.9);
-            return true;
+            //how to use aftercombat-item
         }
     }
-    return false;
+    return true;
 }
 
 bool Sherlock::meet(RobotW* robotw){
-    BaseItem *item = sherlockbag->get(EXCEMPTION_CARD);
-    if (item != NULL){
-        if(item->canUse(this, robotw)){
-            item->use(this, robotw);
-            return true;
-        }else{
-        BaseItem* item = robotw->getItem();
-        sherlockbag->insert(item);
-        delete robotw;
-        return true;
-        }
-    }else{
-        BaseItem* item = robotw->getItem();
-        sherlockbag->insert(item);
-        return true;
+    //auto win and auto receive item,no aftercombat-item
+    if(sherlock == nullptr && robotw == nullptr){
+        return false;
     }
-    return false;
+    bag->insert(robotw->getItem());
+    delete robotw;
+    return true;
 }
 
 bool Sherlock::meet(RobotSW* robotsw){
-        BaseItem *item = sherlockbag->get(EXCEMPTION_CARD);
-        if (item != NULL){
+    if(robotsw == nullptr){
+        return false;
+    }
+        //check excemption card
+        BaseItem *card = bag->get(EXCEMPTION_CARD);
+        if (card != NULL){
             // check canuse
-            if (item->canUse(this, robotsw)){
-                item->use(this,robotsw);
-            }else{
-                if(this->exp > 300 && this->exp > 335){
-                    BaseItem *item = robotsw->getItem(); // Fixed the code by removing 'new' keyword and parentheses.
-                    sherlockbag->insert(item);
+            if (card->canUse(this, robotsw)){
+                //use card
+                card->use(this,robotsw);
+                if(this->exp > 300 && this->hp > 335){
+                    bag->insert(robotsw->getItem());
                     delete robotsw;
-                    return true;
-                }    
-            }
-        }else {
-                if (this->exp > 300 || this->exp > 335){
-                    BaseItem* item = robotsw->getItem();
-                    sherlockbag->insert(item);
-                    delete robotsw;
-                    return true;
                 }else{
-                    this->exp *= 0.85;
-                    this->hp *= 0.85;
-                    return false;
+                    //defeat,no receive,use card
+                    sherlock->setExp(sherlock->getExp());
+                    sherlock->setHp(sherlock->getHp());
+                }
+            //card cannot be used
+            }else{
+                //win
+                if(this->exp > 300 && this->hp > 335){
+                    BaseItem *item = robotsw->getItem(); 
+                    bag->insert(item);
+                    delete robotsw;
+                }else{
+                    //defeat,lose 15% exp and hp,no receive
+                    this->setExp(this->getExp() * 0.85);
+                    this->setHp(this->getHp() * 0.85);
                 }
             }
-            
-        if(this->exp > 300 || this->exp > 335){
-            this->meet(robotsw);
-            delete robotsw;
-            return true;
-        }else{
-            this->exp *= 0.85;
-            this->hp *= 0.85;
-            return false;
-        } 
+        // no exist card    
+        }else {
+            //win
+                if (this->exp > 300 || this->exp > 335){
+                    bag->insert(robotsw->getItem());
+                    delete robotsw;
+                }else{
+                    sherlock->setExp(sherlock->getExp() * 0.85);
+                    sherlock->setExp(sherlock->getHp() * 0.85);
+                }
+            }
+    return true;
 }
 
 
 bool Sherlock::meet(RobotC* robotc){
-    BaseItem *item = sherlockbag->get(EXCEMPTION_CARD);
-    if (item != NULL){
-        item->use(this, robotc);
+    if(sherlock == nullptr || robotc == nullptr){
+        return false;
     }
-    if (pos.isEqual(robotc->getCurrentPosition()))
-    {
-        if (this->getExp() > 500)
-        {
-            this->setCurrentPosition(criminal->getCurrentPosition());
-        }
-        sherlockbag->insert(robotc->get());
+
+    if(sherlock->getExp() > 500){
+        sherlockbag->insert(robotc->getItem());
         delete robotc;
+    sherlock->meet(Criminal* criminal){
+
     }
+    return true;
 }
 
 bool Sherlock::meet(Watson* watson){
@@ -386,6 +408,7 @@ bool Sherlock::meet(Watson* watson){
         }
     }
 }
+
 //Task 3.6 - Watson
 
 Watson::Watson(int index, const string &moving_rule, const Position &pos, Map *map, int hp, int exp) : Character(index, pos, map, "Watson"){
@@ -527,31 +550,33 @@ bool ArrayMovingObject::checkMeet(int index) const{
     for(int i = 0; i < count;i++){
         MovingObject* mv2 = arr_mv_objs[i];
         if(mv1->getCurrentPosition().isEqual(mv2->getCurrentPosition())){
-            if(arr_mv_objs[1]->getCharacterType() == SHERLOCK){
+            if(mv1->getCharacterType() == SHERLOCK){
                 Sherlock * sherlock = dynamic_cast<Sherlock*>(arr_mv_objs[i]);
-                if(arr_mv_objs[i]->getCharacterType() == SHERLOCK){
+                if(mv2->getCharacterType() == SHERLOCK){
                     continue;
-                }else if(arr_mv_objs[i]->getCharacterType() == WATSON){
-                    Watson * watson = dynamic_cast<Watson*>(arr_mv_objs[i]);
+                }else if(mv2->getCharacterType() == WATSON){
+                    Watson * watson = dynamic_cast<Watson*>(mv2);
                     sherlock->meet(watson);
-                }else if(arr_mv_objs[i]->getCharacterType() == CRIMINAL){
-                    Criminal * criminal = dynamic_cast<Criminal*>(arr_mv_objs[i]);
-                    
-                }else if(arr_mv_objs[i]->getRobotType() == C){
-                    RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
-                }else if(arr_mv_objs[i]->getRobotType() == S){
-                    RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
-                }else if(arr_mv_objs[i]->getRobotType() == W){
-                    RobotW * robotw = dynamic_cast<RobotW*>(arr_mv_objs[i]);
-                }else if(arr_mv_objs[i]->getRobotType() == SW){
-                    RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
+                }else if(mv2->getCharacterType() == CRIMINAL){
+                    Criminal * criminal = dynamic_cast<Criminal*>(mv2);
+                } else if(mv2->getCharacterType() == ROBOT){
+                    if(dynamic_cast<Robot*>(mv2)->getRobotType() == C){
+                        RobotC * robotc = dynamic_cast<RobotC*>(mv2);
+                    }else if(mv2->getCharacterType() == S){
+                        RobotS * robots = dynamic_cast<RobotS*>(mv2);
+                    }else if(mv2->getCharacterType() == W){
+                        RobotW * robotw = dynamic_cast<RobotW*>(mv2);
+                    }else if(mv2->getCharacterType() == SW){
+                        RobotSW * robotsw = dynamic_cast<RobotSW*>(mv2);
+                    }
                 }
+                
             }else if(arr_mv_objs[i]->getCharacterType() == WATSON){
                 Watson * watson = dynamic_cast<Watson*>(arr_mv_objs[i]);  
 
             }else if(arr_mv_objs[i]->getCharacterType() == CRIMINAL){
                 Criminal * criminal = dynamic_cast<Criminal*>(arr_mv_objs[i]);
-            }else if(arr_mv_objs[i]->getRobotType() == C){
+            }else if(arr_mv_objs[i]->getRobType() == C){
                 RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
             }else if(arr_mv_objs[i]->getRobotType() == S){
                 RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
@@ -1160,30 +1185,25 @@ BaseBag::~BaseBag() {
 }
 
 bool BaseBag::insert(BaseItem* item){
-     if(item == nullptr){
+    if(item == nullptr){
         return false;
     }
-    Node* temp = new Node(item,nullptr); 
-    if(head = nullptr){
-        if(size == 0){
-            head = temp;
-        }
-    }  
-    if(temp == NULL)
-    {
-        return false;
-    }else{
+    Node* temp = new Node(item); 
+    if(size == 0){
+        head = temp;
+    }
+    else{
         if(size < capacity){
-            temp->item = item;
             temp->next = head;
             head = temp;
-            size++;
         }
         else
         { 
             return false;
         }
     }
+    size++;
+    delete temp;
     return true;
 }
 
@@ -1193,12 +1213,18 @@ BaseItem* BaseBag::get(ItemType itemtype) {
     while (current != nullptr) {
         if (current->item->getItemType() == itemtype) {
             if (prev != nullptr) {
-                prev->next = current->next;
+                prev->next = head;
+                Node* temp = head->next;
+                head->next = current->next;
+                current->next = temp;
+                head = temp;
+                delete temp;
             } else {
                 head = current->next;
             }
             BaseItem* item = current->item;
             delete current;
+            delete prev;
             size--;
             return item;
         }
