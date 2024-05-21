@@ -199,12 +199,13 @@ class Sherlock : public Character {
         bool meet(RobotW* robotw);
         bool meet(RobotSW* robotsw);
         bool meet(Watson* watson);
+        SherlockBag* getBag() const;
 
     };
 
     class Watson : public Character {
         friend class TestStudyInPink;
-        private:
+        public:     //illegal
         WatsonBag* bag;
     public:
         Watson(int index, const string & moving_rule, const Position & pos, Map * map, int hp, int exp);
@@ -215,12 +216,14 @@ class Sherlock : public Character {
         void setName(string name);
         CharacterType getCharacterType() const;
         RobotType getRobotType() const{};
+        WatsonBag* getBag() const;
 
         bool meet(RobotC* robotc);
         bool meet(RobotS* robots);
         bool meet(RobotW* robotw);
         bool meet(RobotSW* robotsw);
         bool meet(Sherlock* sherlock);
+        
 };
 
 class Criminal : public Character {
@@ -302,7 +305,6 @@ class Robot : public MovingObject{
         virtual RobotType getRobotType() const = 0;
         virtual void setRobotType(RobotType robot_type);
         void setItem(ItemType itemtype, Criminal* criminal);
-
         int two_into_one(int p);
         virtual BaseItem* getItem();
     };
@@ -321,8 +323,6 @@ class RobotC : public Robot {
         string str() const;
         RobotType getRobotType() const override;
         BaseItem* get();
-        
-
 };
 
 class RobotS : public Robot {
@@ -437,15 +437,14 @@ class BaseBag{
     public:
         virtual bool insert(BaseItem* item);
         virtual BaseItem* get() = 0;
-        virtual BaseItem* get(ItemType itemtype) = 0;
+        virtual BaseItem* get(ItemType itemtype);
         virtual string str() const;
         BaseBag(int capacity);
         virtual ~BaseBag();
         bool checkItem(ItemType itemtype);
         bool isFull() const;
-        virtual bool canUse(Character* obj, Robot* robot) = 0;
         virtual int getCapacity() = 0;
-        virtual void setCapacity(int capacity) = 0;
+        virtual void setCapacity(int capacity);
     protected:
         int size;
         int capacity;
@@ -457,9 +456,8 @@ class SherlockBag : public BaseBag{
         Sherlock* sherlock;
     public:
         SherlockBag(Sherlock* sherlock);
-        BaseItem* get();
-        BaseItem* get(ItemType itemtype);
-        bool canUse(Character* obj, Robot* robot);
+        virtual BaseItem* get();
+        virtual BaseItem* get(ItemType itemtype);
         int getCapacity();
         void setCapacity(int capacity);
 };
@@ -470,7 +468,8 @@ class WatsonBag : public BaseBag{
         Watson* watson;
     public:
         WatsonBag(Watson* watson);
-        BaseItem* get();
+        virtual BaseItem* get();
+        virtual BaseItem* get(ItemType itemtype);
         int getCapacity();
         void setCapacity(int capacity);
 };
@@ -507,23 +506,12 @@ class StudyPinkProgram {
                 << sherlock->str() << "--|--" << watson->str() << "--|--" << criminal->str() << endl;
         }
 
-        void run(bool verbose) {
+        void printInfo(int si, int i, ofstream &OUT);
+        void run(bool verbose,ofstream &OUTPUT);
             // Note: This is a sample code. You can change the implementation as you like.
             // TODO
-            for (int istep = 0; istep < config->num_steps; ++istep) {
-                for (int i = 0; i < arr_mv_objs->size(); ++i) {
-                    arr_mv_objs->get(i)->move();
-                    if (isStop()) {
-                        printStep(istep);
-                        break;
-                    }
-                    if (verbose) {
-                        printStep(istep);
-                    }
-                }
-            }
-            printResult();
-        }
+            
+        
 
         ~StudyPinkProgram();
 };

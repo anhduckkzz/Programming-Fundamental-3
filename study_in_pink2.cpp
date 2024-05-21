@@ -393,20 +393,33 @@ bool Sherlock::meet(RobotC* robotc){
     if(this->getExp() > 500){
         bag->insert(robotc->getItem());
         delete robotc;
-    
+    }else{
+        Position win_pos = robotc->getNextPosition();
+        this->pos = win_pos;
+    }
     return true;
-}
+
 }
 bool Sherlock::meet(Watson* watson){
-    if(this->getCurrentPosition().isEqual(watson->getCurrentPosition())){
-        BaseItem* item = bag->get(PASSING_CARD);
-        if(item != NULL){
-            dynamic_cast<WatsonBag*>(bag)->insert(item);
-            item = bag->get(PASSING_CARD);
-        }
+    if(watson == nullptr){
+        return false;
+    }
+
+    BaseItem* passingcard;
+    while ((passingcard = bag->get(PASSING_CARD)) != nullptr) {
+        dynamic_cast<Watson*>(watson)->bag->insert(passingcard);
+    }
+
+    BaseItem* excemptioncard;
+    while ((excemptioncard = dynamic_cast<Watson*>(watson)->bag->get(EXCEMPTION_CARD)) != nullptr) {
+        bag->insert(excemptioncard);
     }
 }
 
+SherlockBag* Sherlock::getBag() const{
+    return bag;
+
+}
 //Task 3.6 - Watson
 
 Watson::Watson(int index, const string &moving_rule, const Position &pos, Map *map, int hp, int exp) : Character(index, pos, map, "Watson"){
@@ -441,6 +454,57 @@ string Watson::str() const {
     return "Watson[index=" + to_string(index) + ",pos=" + pos.str() + ",moving_rule=" + moving_rule + "]";
 }
 
+WatsonBag* Watson::getBag() const{
+    return bag;
+}
+bool Watson::meet(RobotS* robots){
+    if(robots == nullptr){
+        return false;
+    }
+    return true;    
+}
+
+bool Watson::meet(RobotW* robotw){
+    if(robotw == nullptr){
+        return false;
+    }else{
+        BaseItem* card = bag->get(PASSING_CARD);
+        if(card != nullptr){
+            //check card and use card
+            PassingCard* passingcard = new PassingCard(pos.getCol(),pos.getRow());
+            if(passingcard->getChallenge() == "ROBOTW" || passingcard->getChallenge() == "ALL"){
+                passingcard->use(this,robotw);
+                delete robotw;
+            }else{
+                this->setExp(this->getExp() - 50);
+            }
+        }else{
+            //win the combat,receive item
+            if(this->getHp() > 350){
+                bag->insert(robotw->getItem());
+                delete robotw;
+            }else{
+                //lose
+                this->setHp(this->getHp() * 0.85);
+                this->setExp(this->getExp() * 0.85);
+            }
+        }
+    }
+    return true;
+}
+
+bool Watson::meet(RobotSW* robotsw){
+    BaseItem* card = bag->get(PASSING_CARD);
+    if(card != nullptr){
+        PassingCard* passingcard = new PassingCard(pos.getCol(),pos.getRow());
+        if(passingcard->getChallenge() == "ROBOTSW" || passingcard->getChallenge() == "ALL"){
+            passingcard->use(this,robotsw);
+            delete robotsw;
+        }else{
+            this->setExp(this->getExp() - 50);
+        }
+    }
+}
 //Task 3.7 - Criminal
 
 Criminal::Criminal(int index, const Position &pos, Map *map, Sherlock * sherlock, Watson * watson) : Character(index, pos, map, "Criminal") {
@@ -547,7 +611,9 @@ bool ArrayMovingObject::checkMeet(int index) const{
     MovingObject* mv1 = arr_mv_objs[index];
     for(int i = 0; i < count;i++){
         MovingObject* mv2 = arr_mv_objs[i];
+
         if(mv1->getCurrentPosition().isEqual(mv2->getCurrentPosition())){
+            
             if(mv1->getCharacterType() == SHERLOCK){
                 Sherlock * sherlock = dynamic_cast<Sherlock*>(arr_mv_objs[i]);
                 if(mv2->getCharacterType() == SHERLOCK){
@@ -834,7 +900,7 @@ BaseItem* Robot::getItem(){
         return new ExcemptionCard();
     else if (item->getItemType() == PASSING_CARD) {
         PassingCard* card = dynamic_cast<PassingCard*>(item);
-        return new PassingCard(card->getChallenge());
+        return new PassingCard(pos.getCol(), pos.getRow());
     }
         
     else
@@ -1266,6 +1332,10 @@ bool BaseBag::isFull() const {
     return size >= capacity;
 }
 
+void BaseBag::setCapacity(int capacity) {
+    this->capacity = capacity;
+}
+//SherlockBag
 SherlockBag::SherlockBag(Sherlock* sherlock) : BaseBag(13), sherlock(sherlock) {};
 
 
@@ -1280,6 +1350,7 @@ void SherlockBag::setCapacity(int capacity){
     this->capacity = capacity;
 }
 
+
 //WatsonBag
 int WatsonBag::getCapacity(){
     capacity = 15;
@@ -1289,6 +1360,75 @@ int WatsonBag::getCapacity(){
 void WatsonBag::setCapacity(int capacity){
     this->capacity = capacity;
 }
+//StudyinPinkProgram
+StudyPinkProgram::StudyPinkProgram(const string & config_file_path){
+    this->config = new Configuration(config_file_path);
+    this->map = new Map(config->map_num_rows, config->map_num_cols, config->num_walls, config->arr_walls, config->num_fake_walls, config->arr_fake_walls);
+    this->sherlock = new Sherlock(0, config->sherlock_moving_rule, config->sherlock_pos, map, config->sherlock_hp, config->sherlock_exp);
+    this->watson = new Watson(1, config->watson_moving_rule, config->watson_pos, map, config->watson_hp, config->watson_exp);
+    this->criminal = new Criminal(2, config->criminal_pos, map, sherlock, watson);
+    this->arr_mv_objs = new ArrayMovingObject(config->max_num_moving_objects);
+    
+    arr_mv_objs->add(sherlock);
+    arr_mv_objs->add(watson);
+    arr_mv_objs->add(criminal);
+}
+
+StudyPinkProgram::~StudyPinkProgram(){
+    delete config;
+    delete map;
+    delete sherlock;
+    delete watson;
+    delete criminal;
+    delete arr_mv_objs;
+}
+bool StudyPinkProgram::isStop() const{
+    if(sherlock->getHp() <= 0 || watson->getHp() <= 0 || criminal->getCurrentPosition().isEqual(sherlock->getCurrentPosition()) || criminal->getCurrentPosition().isEqual(watson->getCurrentPosition())){
+        return true;
+    }
+    return false;
+}
+
+void StudyPinkProgram::printInfo(int si, int i, ofstream &OUTPUT) 
+    {
+        OUTPUT << endl
+               << "************AFTER MOVE************" << endl;
+        OUTPUT
+            << "ROUND : " << si << " - TURN : " << i << endl;
+        stringstream ss(arr_mv_objs->str());
+        string lineArr = "";
+        getline(ss, lineArr, 'C');
+        OUTPUT << lineArr << "]" << endl;
+        getline(ss, lineArr, ']');
+        OUTPUT << "\tC" << lineArr << "]" << endl;
+        while (getline(ss, lineArr, ']'))
+        {
+            if (lineArr.length() > 0)
+                OUTPUT << "\t" << lineArr.substr(1) << "]" << endl;
+        }
+        OUTPUT << "Sherlock HP_" << sherlock->getHp() << " EXP_" << sherlock->getExp() << endl
+               << "Watson HP_" << watson->getHp() << " EXP_" << watson->getExp() << endl
+               << "SherlockBag : " << sherlock->getBag()->str() << endl
+               << "WatsonBag : " << watson->getBag()->str() << endl;
+    }
+
+void StudyPinkProgram::run(bool verbose, ofstream &OUTPUT){
+    for (int istep = 0; istep < config->num_steps; ++istep) {
+        int roundsize=arr_mv_objs->size();
+        for (int i = 0; i < roundsize; ++i) {
+            arr_mv_objs->get(i)->move();
+
+            if (isStop()) {
+                printInfo(istep, i, OUTPUT);
+                break;
+            }
+            if (verbose) {
+                printInfo(istep, i, OUTPUT);
+            }
+            printInfo(istep, i, OUTPUT);
+        }
+    }
+};
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
 ///////////////////////////////////////////////
