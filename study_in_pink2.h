@@ -151,9 +151,13 @@ class Character : public MovingObject {
         int hp;
         int exp;
         int num;
+        Position next_pos;
         string moving_rule;   
         Criminal* criminal;
-        
+        Sherlock* sherlock;
+        Watson* watson;
+        SherlockBag* sherlockbag;
+        WatsonBag* watsonbag;
     public:
         Character(int index, const Position &pos, Map * map, const string & name);
         virtual ~Character();
@@ -176,7 +180,6 @@ class Character : public MovingObject {
 class Sherlock : public Character {
     friend class TestStudyInPink;
     private:
-    SherlockBag* sherlockbag;
     public:
         Sherlock(int index, const string & moving_rule,const Position & pos, Map * map, int hp, int exp);
         ~Sherlock();
@@ -235,6 +238,7 @@ class ArrayMovingObject {
         ArrayMovingObject(int capacity);
         ~ArrayMovingObject();
         bool isFull() const;
+        bool checkMeet(int index) const;
         bool add(MovingObject * mv_obj);
         MovingObject * get(int index) const;
         int size() const; // return current number of elements in the array
@@ -428,12 +432,15 @@ class BaseBag{
     public:
         virtual bool insert(BaseItem* item);
         virtual BaseItem* get() = 0;
-        virtual BaseItem* get(ItemType itemtype);
+        virtual BaseItem* get(ItemType itemtype) = 0;
         virtual string str() const;
         BaseBag(int capacity);
         virtual ~BaseBag();
         bool checkItem(ItemType itemtype);
         bool isFull() const;
+        virtual bool canUse(Character* obj, Robot* robot) = 0;
+        virtual int getCapacity() = 0;
+        virtual void setCapacity(int capacity) = 0;
     protected:
         int size;
         int capacity;
@@ -446,6 +453,10 @@ class SherlockBag : public BaseBag{
     public:
         SherlockBag(Sherlock* sherlock);
         BaseItem* get();
+        BaseItem* get(ItemType itemtype);
+        bool canUse(Character* obj, Robot* robot);
+        int getCapacity();
+        void setCapacity(int capacity);
 };
 
 class WatsonBag : public BaseBag{
@@ -455,6 +466,8 @@ class WatsonBag : public BaseBag{
     public:
         WatsonBag(Watson* watson);
         BaseItem* get();
+        int getCapacity();
+        void setCapacity(int capacity);
 };
 class StudyPinkProgram {
     friend class TestStudyInPink;

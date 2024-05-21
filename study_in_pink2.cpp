@@ -164,6 +164,7 @@ Position MovingObject::getCurrentPosition() const{
     return pos; 
 }
 
+
 //Task Character
 
 Character::Character(int index, const Position &pos, Map *map, const string &name) : MovingObject(index, pos, map, name) {
@@ -217,7 +218,13 @@ int Character::getRow(){
 string Character::str() const{
     return 0;
 };
-void Character::move(){};
+void Character::move(){
+    next_pos = getNextPosition();
+    if (!next_pos.isEqual(Position::npos))
+    {
+        pos = next_pos;
+    }
+};
 
 int Character::getExp(){
     return exp;
@@ -322,6 +329,20 @@ bool Sherlock::meet(RobotC* robotc){
         }
         sherlockbag->insert(robotc->get());
         delete robotc;
+    }
+}
+
+bool Sherlock::meet(Watson* watson){
+    if(sherlock->getCurrentPosition().isEqual(watson->getCurrentPosition())){
+        if(sherlockbag->checkItem(PASSING_CARD)){
+            if(watsonbag->getCapacity() >= 15){
+                return false;
+            }else{
+                watsonbag->insert(sherlockbag->get(PASSING_CARD));
+                return true;
+            }
+            return true;
+        }
     }
 }
 //Task 3.6 - Watson
@@ -449,6 +470,61 @@ string ArrayMovingObject::str() const {
         res+= ";" + arr_mv_objs[i]->str();
     }
     return res;
+}
+
+bool ArrayMovingObject::checkMeet(int index) const{
+    MovingObject* mv1 = arr_mv_objs[index];
+    for(int i = 0; i < count;i++){
+        MovingObject* mv2 = arr_mv_objs[i];
+        if(mv1->getCurrentPosition().isEqual(mv2->getCurrentPosition())){
+            if(arr_mv_objs[1]->getName() == "Sherlock"){
+                Sherlock * sherlock = dynamic_cast<Sherlock*>(arr_mv_objs[i]);
+                if(arr_mv_objs[i]->getName() == "Sherlock"){
+                    continue;
+                }else if(arr_mv_objs[i]->getName() == "Watson"){
+                    Watson * watson = dynamic_cast<Watson*>(arr_mv_objs[i]);
+                    sherlock->meet(watson);
+                }else if(arr_mv_objs[i]->getName() == "Criminal"){
+                    Criminal * criminal = dynamic_cast<Criminal*>(arr_mv_objs[i]);
+                    
+                }else if(arr_mv_objs[i]->getName() == "RobotC"){
+                    RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
+                }else if(arr_mv_objs[i]->getName() == "RobotS"){
+                    RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
+                }else if(arr_mv_objs[i]->getName() == "RobotW"){
+                    RobotW * robotw = dynamic_cast<RobotW*>(arr_mv_objs[i]);
+                }else if(arr_mv_objs[i]->getName() == "RobotSW"){
+                    RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
+                }
+            }else if(arr_mv_objs[i]->getName() == "Watson"){
+                Watson * watson = dynamic_cast<Watson*>(arr_mv_objs[i]);  
+            }else if(arr_mv_objs[i]->getName() == "Criminal"){
+                Criminal * criminal = dynamic_cast<Criminal*>(arr_mv_objs[i]);
+            }else if(arr_mv_objs[i]->getName() == "RobotC"){
+                RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
+            }else if(arr_mv_objs[i]->getName() == "RobotS"){
+                RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
+            }else if(arr_mv_objs[i]->getName() == "RobotW"){
+                RobotW * robotw = dynamic_cast<RobotW*>(arr_mv_objs[i]);
+            }else if(arr_mv_objs[i]->getName() == "RobotSW"){
+                RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
+            }
+        }
+
+    }
+    
+    
+    if (Watson * watson = dynamic_cast<Watson*>(arr_mv_objs[index])){
+        for (int i = 0; i < count; i++){
+            if (Sherlock * sherlock = dynamic_cast<Sherlock*>(arr_mv_objs[i])){
+                if (watson->meet(sherlock)){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+
 }
 
 //Task 3.9 - Configuration
@@ -1078,7 +1154,14 @@ bool BaseBag::insert(BaseItem* item){
      if(item == NULL){
         return false;
     }
-    Node* temp = new Node(item,head);   
+    Node* temp = new Node(item,head); 
+    if(head = nullptr){
+        if(size == 0){
+            head = temp;
+        }else{
+            
+        }
+    }  
     if(temp == NULL)
     {
         return false;
@@ -1155,13 +1238,25 @@ bool BaseBag::isFull() const {
 SherlockBag::SherlockBag(Sherlock* sherlock) : BaseBag(13), sherlock(sherlock) {};
 
 
-BaseItem* SherlockBag::get(){
-    Node* current = head;
-    while (current != nullptr) {
-        if(canUse()){
-            
-        }
+
+//SherlockBag
+int SherlockBag::getCapacity(){
+    capacity = 13;
+    return capacity;
 }
+
+void SherlockBag::setCapacity(int capacity){
+    this->capacity = capacity;
+}
+
+//WatsonBag
+int WatsonBag::getCapacity(){
+    capacity = 15;
+    return capacity;
+}
+
+void WatsonBag::setCapacity(int capacity){
+    this->capacity = capacity;
 }
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
