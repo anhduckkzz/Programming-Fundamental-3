@@ -279,12 +279,12 @@ Sherlock::~Sherlock() {}
 
 bool Sherlock::meet(RobotS* robots){
     //check if sherlock meet robotS
-    if(sherlock == nullptr && robots == nullptr){
+    if(robots == nullptr){
         return false;
     }
 
     //get out of from bag the excemption card
-    BaseItem* card = sherlockbag->get(EXCEMPTION_CARD);   
+    BaseItem* card = bag->get(EXCEMPTION_CARD);   
     //if there is an excemption card in the bag 
     if(card != nullptr){
         //if item can be used
@@ -292,36 +292,36 @@ bool Sherlock::meet(RobotS* robots){
             //use the item
             card->use(this, robots);
             //combat win
-            if(sherlock->getExp() > 400){
-                sherlockbag->insert(robots->getItem());
+            if(this->getExp() > 400){
+                bag->insert(robots->getItem());
                 delete robots;
             //combat lose,exp remains the same
             }else{
-                sherlock->setExp(sherlock->getExp());
+                this->setExp(this->getExp());
             }
 
         //if the card cannot be used,combat
         }else{
             //sherlock win if exp > 400
-            if(sherlock->getExp() > 400){
-                sherlockbag->insert(robots->getItem());
+            if(this->getExp() > 400){
+                bag->insert(robots->getItem());
                 delete robots;
             }else{
                 //sherlock defeat and lose 10% exp,no receive
-                sherlock->setExp(sherlock->getExp() * 0.9);
-                sherlock->setExp(sherlock->getExp());
+                this->setExp(this->getExp() * 0.9);
+                this->setExp(this->getExp());
             }
         }
     //if there is no excemption card in the bag
     }else{
         //win if exp > 400
-        if(sherlock->getExp() > 400){
+        if(this->getExp() > 400){
             BaseItem* item = robots->getItem();
-            sherlockbag->insert(item);
+            bag->insert(item);
             delete robots;
         //defeat and lose 10% exp,no receive
         }else{
-            sherlock->setExp(sherlock->getExp() * 0.9);
+            this->setExp(this->getExp() * 0.9);
             //how to use aftercombat-item
         }
     }
@@ -330,7 +330,7 @@ bool Sherlock::meet(RobotS* robots){
 
 bool Sherlock::meet(RobotW* robotw){
     //auto win and auto receive item,no aftercombat-item
-    if(sherlock == nullptr && robotw == nullptr){
+    if(robotw == nullptr){
         return false;
     }
     bag->insert(robotw->getItem());
@@ -354,8 +354,8 @@ bool Sherlock::meet(RobotSW* robotsw){
                     delete robotsw;
                 }else{
                     //defeat,no receive,use card
-                    sherlock->setExp(sherlock->getExp());
-                    sherlock->setHp(sherlock->getHp());
+                    this->setExp(this->getExp());
+                    this->setHp(this->getHp());
                 }
             //card cannot be used
             }else{
@@ -377,8 +377,8 @@ bool Sherlock::meet(RobotSW* robotsw){
                     bag->insert(robotsw->getItem());
                     delete robotsw;
                 }else{
-                    sherlock->setExp(sherlock->getExp() * 0.85);
-                    sherlock->setExp(sherlock->getHp() * 0.85);
+                    this->setExp(this->getExp() * 0.85);
+                    this->setExp(this->getHp() * 0.85);
                 }
             }
     return true;
@@ -386,25 +386,23 @@ bool Sherlock::meet(RobotSW* robotsw){
 
 
 bool Sherlock::meet(RobotC* robotc){
-    if(sherlock == nullptr || robotc == nullptr){
+    if(this == nullptr || robotc == nullptr){
         return false;
     }
 
-    if(sherlock->getExp() > 500){
-        sherlockbag->insert(robotc->getItem());
+    if(this->getExp() > 500){
+        bag->insert(robotc->getItem());
         delete robotc;
-    sherlock->meet(Criminal* criminal){
-
-    }
+    
     return true;
 }
-
+}
 bool Sherlock::meet(Watson* watson){
     if(this->getCurrentPosition().isEqual(watson->getCurrentPosition())){
-        BaseItem* item = sherlockbag->get(PASSING_CARD);
+        BaseItem* item = bag->get(PASSING_CARD);
         if(item != NULL){
-            watsonbag->insert(item);
-            item = sherlockbag->get(PASSING_CARD);
+            dynamic_cast<WatsonBag*>(bag)->insert(item);
+            item = bag->get(PASSING_CARD);
         }
     }
 }
@@ -571,18 +569,18 @@ bool ArrayMovingObject::checkMeet(int index) const{
                     }
                 }
                 
-            }else if(arr_mv_objs[i]->getCharacterType() == WATSON){
-                Watson * watson = dynamic_cast<Watson*>(arr_mv_objs[i]);  
+            }else if(mv1->getCharacterType() == WATSON){
+                Watson * watson = dynamic_cast<Watson*>(mv1);  
 
-            }else if(arr_mv_objs[i]->getCharacterType() == CRIMINAL){
+            }else if(mv1->getCharacterType() == CRIMINAL){
                 Criminal * criminal = dynamic_cast<Criminal*>(arr_mv_objs[i]);
-            }else if(arr_mv_objs[i]->getRobType() == C){
+            }else if(dynamic_cast<RobotC*>(mv1)->getRobotType() == C){
                 RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
-            }else if(arr_mv_objs[i]->getRobotType() == S){
+            }else if(dynamic_cast<RobotS*>(mv1)->getRobotType() == S){
                 RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
-            }else if(arr_mv_objs[i]->getRobotType() == W){
+            }else if(dynamic_cast<RobotW*>(mv1)->getRobotType() == W){
                 RobotW * robotw = dynamic_cast<RobotW*>(arr_mv_objs[i]);
-            }else if(arr_mv_objs[i]->getRobotType() == SW){
+            }else if(dynamic_cast<RobotSW*>(mv1)->getRobotType() == SW){
                 RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
             }
         }
