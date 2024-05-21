@@ -414,6 +414,7 @@ bool Sherlock::meet(Watson* watson){
     while ((excemptioncard = dynamic_cast<Watson*>(watson)->bag->get(EXCEMPTION_CARD)) != nullptr) {
         bag->insert(excemptioncard);
     }
+    return true;
 }
 
 SherlockBag* Sherlock::getBag() const{
@@ -613,7 +614,7 @@ bool ArrayMovingObject::checkMeet(int index) const{
         MovingObject* mv2 = arr_mv_objs[i];
 
         if(mv1->getCurrentPosition().isEqual(mv2->getCurrentPosition())){
-            
+            //SHERLOCK
             if(mv1->getCharacterType() == SHERLOCK){
                 Sherlock * sherlock = dynamic_cast<Sherlock*>(arr_mv_objs[i]);
                 if(mv2->getCharacterType() == SHERLOCK){
@@ -623,35 +624,129 @@ bool ArrayMovingObject::checkMeet(int index) const{
                     sherlock->meet(watson);
                 }else if(mv2->getCharacterType() == CRIMINAL){
                     Criminal * criminal = dynamic_cast<Criminal*>(mv2);
+                    return true;
                 } else if(mv2->getCharacterType() == ROBOT){
                     if(dynamic_cast<Robot*>(mv2)->getRobotType() == C){
                         RobotC * robotc = dynamic_cast<RobotC*>(mv2);
-                    }else if(mv2->getCharacterType() == S){
+                    }else if(dynamic_cast<RobotS*>(mv2)->getRobotType() == S){
                         RobotS * robots = dynamic_cast<RobotS*>(mv2);
-                    }else if(mv2->getCharacterType() == W){
+                    }else if(dynamic_cast<RobotW*>(mv2)->getRobotType() == W){
                         RobotW * robotw = dynamic_cast<RobotW*>(mv2);
-                    }else if(mv2->getCharacterType() == SW){
+                    }else if(dynamic_cast<RobotSW*>(mv2)->getRobotType() == SW){
                         RobotSW * robotsw = dynamic_cast<RobotSW*>(mv2);
                     }
                 }
-                
+                //WATSON
             }else if(mv1->getCharacterType() == WATSON){
                 Watson * watson = dynamic_cast<Watson*>(mv1);  
-
+                if(mv2->getCharacterType() == WATSON){
+                    continue;
+                }else if(mv2->getCharacterType() == SHERLOCK){
+                    Sherlock * sherlock = dynamic_cast<Sherlock*>(mv2);
+                    watson->meet(sherlock);
+                }else if(mv2->getCharacterType() == CRIMINAL){
+                    Criminal * criminal = dynamic_cast<Criminal*>(mv2);
+                }else if(mv2->getCharacterType() == ROBOT){
+                    if(dynamic_cast<Robot*>(mv2)->getRobotType() == C){
+                        RobotC * robotc = dynamic_cast<RobotC*>(mv2);
+                    }else if(dynamic_cast<RobotS*>(mv2)->getRobotType() == S){
+                        RobotS * robots = dynamic_cast<RobotS*>(mv2);
+                    }else if(dynamic_cast<RobotW*>(mv2)->getRobotType() == W){
+                        RobotW * robotw = dynamic_cast<RobotW*>(mv2);
+                    }else if(dynamic_cast<RobotSW*>(mv2)->getRobotType() == SW){
+                        RobotSW * robotsw = dynamic_cast<RobotSW*>(mv2);
+                    }
+                }
+            //CRIMINAL
             }else if(mv1->getCharacterType() == CRIMINAL){
                 Criminal * criminal = dynamic_cast<Criminal*>(arr_mv_objs[i]);
-            }else if(dynamic_cast<RobotC*>(mv1)->getRobotType() == C){
-                RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
-            }else if(dynamic_cast<RobotS*>(mv1)->getRobotType() == S){
-                RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
-            }else if(dynamic_cast<RobotW*>(mv1)->getRobotType() == W){
-                RobotW * robotw = dynamic_cast<RobotW*>(arr_mv_objs[i]);
-            }else if(dynamic_cast<RobotSW*>(mv1)->getRobotType() == SW){
-                RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
+                if(mv2->getCharacterType() == CRIMINAL){
+                    continue;
+                }else if(mv2->getCharacterType() == SHERLOCK){
+                    Sherlock * sherlock = dynamic_cast<Sherlock*>(mv2);
+                    return true;
+                }else if(mv2->getCharacterType() == WATSON){
+                    Watson * watson = dynamic_cast<Watson*>(mv2);
+                    return true;
+                }else if(mv2->getCharacterType() == ROBOT){
+                    if(dynamic_cast<Robot*>(mv2)->getRobotType() == C){
+                        RobotC * robotc = dynamic_cast<RobotC*>(mv2);
+                    }else if(dynamic_cast<RobotS*>(mv2)->getRobotType() == S){
+                        RobotS * robots = dynamic_cast<RobotS*>(mv2);
+                    }else if(dynamic_cast<RobotW*>(mv2)->getRobotType() == W){
+                        RobotW * robotw = dynamic_cast<RobotW*>(mv2);
+                    }else if(dynamic_cast<RobotSW*>(mv2)->getRobotType() == SW){
+                        RobotSW * robotsw = dynamic_cast<RobotSW*>(mv2);
+                    }
+                }
+                //ROBOT
+            }else if(mv1->getCharacterType() == ROBOT){
+                if(dynamic_cast<RobotC*>(mv2)->getRobotType() == C){
+                    RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
+                    if(dynamic_cast<RobotC*>(mv2)->getRobotType() == C){
+                        RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotS*>(mv2)->getRobotType() == S){
+                        RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotW*>(mv2)->getRobotType() == W){
+                        RobotW * robotw = dynamic_cast<RobotW*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotSW*>(mv2)->getRobotType() == SW){
+                        RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
+                        continue;
+                    }
+                }else if(dynamic_cast<RobotS*>(mv1)->getRobotType() == S){
+                    RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
+                    if(dynamic_cast<RobotC*>(mv2)->getRobotType() == C){
+                        RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotS*>(mv2)->getRobotType() == S){
+                        RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotW*>(mv2)->getRobotType() == W){
+                        RobotW * robotw = dynamic_cast<RobotW*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotSW*>(mv2)->getRobotType() == SW){
+                        RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
+                        continue;
+                    }
+                }else if(dynamic_cast<RobotW*>(mv1)->getRobotType() == W){
+                    RobotW * robotw = dynamic_cast<RobotW*>(arr_mv_objs[i]);
+                    if(dynamic_cast<RobotC*>(mv2)->getRobotType() == C){
+                        RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotS*>(mv2)->getRobotType() == S){
+                        RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotW*>(mv2)->getRobotType() == W){
+                        RobotW * robotw = dynamic_cast<RobotW*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotSW*>(mv2)->getRobotType() == SW){
+                        RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
+                        continue;
+                    }
+                }else if(dynamic_cast<RobotSW*>(mv1)->getRobotType() == SW){
+                    RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
+                    if(dynamic_cast<RobotC*>(mv2)->getRobotType() == C){
+                        RobotC * robotc = dynamic_cast<RobotC*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotS*>(mv2)->getRobotType() == S){
+                        RobotS * robots = dynamic_cast<RobotS*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotW*>(mv2)->getRobotType() == W){
+                        RobotW * robotw = dynamic_cast<RobotW*>(arr_mv_objs[i]);
+                        continue;
+                    }else if(dynamic_cast<RobotSW*>(mv2)->getRobotType() == SW){
+                        RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
+                        continue;
+                    }
+                }
             }
         }
     }
 }
+
 
 //Task 3.9 - Configuration
 

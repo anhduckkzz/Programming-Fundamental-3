@@ -423,13 +423,13 @@ class PassingCard: public BaseItem{
 
 //BaseBag
 class BaseBag{
-    protected:
+    public:
         class Node{
             public:
                 BaseItem* item;
                 Node* next;
             public:
-                Node(BaseItem* item,Node* next = nullptr) : item(item){};
+                Node(BaseItem* item,Node* next = nullptr);
         };
     protected:
         Node* head;
@@ -510,9 +510,6 @@ class StudyPinkProgram {
         void run(bool verbose,ofstream &OUTPUT);
             // Note: This is a sample code. You can change the implementation as you like.
             // TODO
-            
-        
-
         ~StudyPinkProgram();
 };
 
