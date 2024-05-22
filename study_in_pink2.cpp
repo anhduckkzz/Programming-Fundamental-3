@@ -745,7 +745,7 @@ bool ArrayMovingObject::checkMeet(int index) const{
                         RobotSW * robotsw = dynamic_cast<RobotSW*>(arr_mv_objs[i]);
                         continue;
                     }
-                }   
+                }
             }
         }
     }
