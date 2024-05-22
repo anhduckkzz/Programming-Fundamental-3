@@ -215,7 +215,6 @@ class Sherlock : public Character {
         string getName();
         void setName(string name);
         CharacterType getCharacterType() const;
-        RobotType getRobotType() const{};
         WatsonBag* getBag() const;
 
         bool meet(RobotC* robotc);

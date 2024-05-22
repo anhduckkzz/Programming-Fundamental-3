@@ -495,6 +495,9 @@ bool Watson::meet(RobotW* robotw){
 }
 
 bool Watson::meet(RobotSW* robotsw){
+    if(robotsw == nullptr){
+        return false;
+    }
     BaseItem* card = bag->get(PASSING_CARD);
     if(card != nullptr){
         PassingCard* passingcard = new PassingCard(pos.getCol(),pos.getRow());
@@ -505,6 +508,7 @@ bool Watson::meet(RobotSW* robotsw){
             this->setExp(this->getExp() - 50);
         }
     }
+    return true;
 }
 //Task 3.7 - Criminal
 
